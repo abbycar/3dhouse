@@ -14,6 +14,8 @@ function init()
 
 	renderer = new THREE.WebGLRenderer({ antialias:true });
 	renderer.setSize(width,height);
+	renderer.domElement.style.backgroundColor = '#000000';
+	document.body.appendChild( renderer.domElement );
 
 	div.appendChild(renderer.domElement);
 	scene = new THREE.Scene();
@@ -84,7 +86,7 @@ function init()
 	});
 
 
-	var planeGeometry = new THREE.PlaneGeometry( 300, 300, 300 );
+	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 300, 300 );
 	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0x545454, side: THREE.DoubleSide} );
 	var plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	plane.position.set(50, 0, -30);
@@ -94,7 +96,7 @@ function init()
 	scene.add( plane ); 
 	
     // controls to rotate around the object right now
-	controls = new THREE.OrbitControls(camera);
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	//controls.addEventListener('change',updateControls);
 
 	// add window resize controller
