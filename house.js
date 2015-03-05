@@ -1,9 +1,10 @@
-var width = window.innerWidth;
-var height = window.innerHeight;
-var controls,renderer,scene,camera;
+var RENDER_WIDTH = window.innerWidth, RENDER_HEIGHT = window.innerHeight;
+var controls1,controls2,renderer,scene,camera;
 var ground,houseContainer;
 var groundMaterial;
+var viewFlag = true;
 
+var clock = new THREE.Clock();
 init();
 animate();
 
@@ -13,15 +14,14 @@ function init()
 	var div = document.getElementById("container");
 
 	renderer = new THREE.WebGLRenderer({ antialias:true });
-	renderer.setSize(width,height);
+	renderer.setSize(RENDER_WIDTH,RENDER_HEIGHT);
 	renderer.domElement.style.backgroundColor = '#000000';
 	document.body.appendChild( renderer.domElement );
 
 	div.appendChild(renderer.domElement);
 	scene = new THREE.Scene();
-
 	// add camera to the scene
-	camera = new THREE.PerspectiveCamera(45,width/height,0.1,1000);
+	camera = new THREE.PerspectiveCamera(45, RENDER_WIDTH / RENDER_HEIGHT, 0.1, 10000);
 	camera.position.y = 240;
 	camera.position.x = 20;
 	camera.position.z = -20;
@@ -29,6 +29,7 @@ function init()
 	var axes = new THREE.AxisHelper(100);
 	axes.position.y = 5;
 	scene.add( axes );
+	
 	// add directional light
 	/*var directionalLight = new THREE.DirectionalLight(0xffffff,0.5);
     directionalLight.position.set(1, 1, 1).normalize();
@@ -95,9 +96,10 @@ function init()
 	plane.rotation.x = 1.57;
 	scene.add( plane ); 
 	
-    // controls to rotate around the object right now
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	//controls.addEventListener('change',updateControls);
+
+
+	controls2= new THREE.OrbitControls(camera, renderer.domElement);
+	
 
 	// add window resize controller
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -118,23 +120,26 @@ function init()
 	// Drop down menu to pick the view of the camera
 	gui.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View").onChange( function() {
 		if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
-			controls.reset();
-			controls.enabled = true;
+			controls2= new THREE.OrbitControls(camera, renderer.domElement);
+			// topdown position
 			camera.position.y = 240;
 			camera.position.x = 20;
 			camera.position.z = -20;
 		} else if ( guiConfig.cameraView == 'First-person') { // camera position for first person point of view
-			//var controls = new THREE.PointerLockControls(camera);
-			controls.enabled = false;
-			camera.position.y = 40;
-			camera.position.x = 20;
-			camera.position.z = -20;
+			controls2 = new THREE.FirstPersonControls(camera, renderer.domElement);
+			controls2.movementSpeed = 70;
+			controls2.lookSpeed = 0.05;
+			controls2.noFly = true;
+			controls2.lookVertical = false;
+			camera.position.y = 15;
+			camera.position.x = 0;
+			camera.position.z = 0;
 
 		}
 	});	
 	
 	// Slide bar used for changing light intensity - in lighting folder
-	var intens = gui.add( guiConfig, 'intensity' ).min(0).max(1).step(.1).listen();
+	var intens = gui.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
 	
 	// Show the control instructions in a pop up if clicked
 	gui.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
@@ -144,16 +149,21 @@ function init()
 	
 
 }
-		
-function updateControls(){
-	controls.update();
-}
+
 
 function animate()
 {
 	requestAnimationFrame(animate);
+	render();
 	renderer.render(scene,camera);
 }		
+
+function render() {
+	controls2.update( clock.getDelta() );
+	//controls1.update();
+	renderer.render( scene, camera );
+}
+
 
 function onWindowResize( e ) {
 	containerWidth = container.clientWidth;
