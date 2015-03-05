@@ -25,6 +25,7 @@ function init()
 	camera.position.z = -20;
 	scene.add(camera);
 	var axes = new THREE.AxisHelper(100);
+	axes.position.y = 5;
 	scene.add( axes );
 	// add directional light
 	/*var directionalLight = new THREE.DirectionalLight(0xffffff,0.5);
@@ -83,10 +84,14 @@ function init()
 	});
 
 
-	// add a plane as ground  ---- not working right now!!!
-//	groundMaterial = new THREE.MeshLambertMaterial({color:ffff00,side:THREE.DoubleSide});
-//	ground = new THREE.Mesh(new THREE.PlaneGeoemtry(500,500,1),groundMaterial);
-//	scene.add(ground);
+	var planeGeometry = new THREE.PlaneGeometry( 300, 300, 300 );
+	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0x545454, side: THREE.DoubleSide} );
+	var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+	plane.position.set(50, 0, -30);
+	plane.receiveShadow = true;
+	plane.castShadow = false;
+	plane.rotation.x = 1.57;
+	scene.add( plane ); 
 	
     // controls to rotate around the object right now
 	controls = new THREE.OrbitControls(camera);
