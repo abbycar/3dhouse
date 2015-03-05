@@ -1,6 +1,8 @@
 var width = window.innerWidth;
 var height = window.innerHeight;
-var renderer,scene,camera;
+var controls,renderer,scene,camera;
+var ground,houseContainer;
+var groundMaterial;
 
 init();
 animate();
@@ -16,13 +18,52 @@ function init()
 	div.appendChild(renderer.domElement);
 	scene = new THREE.Scene();
 
+	camera.position.y = 100;
+	camera.position.x = 0;
+	camera.position.z = 200;
+
+	/*var directionalLight = new THREE.DirectionalLight(0xffffff,0.5);
+
+    var ambientLight = new THREE.AmbientLight(0Xffffff);
+    ambientLight.position.set(0,1000,0);
+    scene.add(ambientLight);*/
+
+	/*var hLight = new THREE.HemisphereLight(0x666666,0x555555,1.0);
 
 
+	scene.add( new THREE.AmbientLight( 0x505050 ) );
 
+	var light = new THREE.SpotLight( 0xffffff, 1.5 );
+	light.position.set( 300, 500, 2000 );
+	light.castShadow = true;
+
+	light.shadowCameraNear = 200;
+	light.shadowCameraFar = camera.far;
+	light.shadowCameraFov = 50;
+
+	light.shadowBias = -0.00022;
+	light.shadowDarkness = 0.5;
+
+	light.shadowMapWidth = 2048;
+	light.shadowMapHeight = 2048;
+
+	scene.add( light );*/
+	var ambientLight = new THREE.AmbientLight( 0x222222 );
+	var light = new THREE.DirectionalLight( 0xffffff, 1.0 );
+	light.position.set( 200, 400, 500 );
+	
+	var light2 = new THREE.DirectionalLight( 0xffffff, 1.0 );
+	light2.position.set( -400, 200, -300 );
+
+	scene.add(ambientLight);
+	scene.add(light);
+	scene.add(light2);
+
+	houseContainer = new THREE.Group();
 
     // loader to load in house model
     var loader = new THREE.OBJMTLLoader();
-	loader.load('model/kitchen_tri.obj','model/kitchen_tri.mtl',function(object){
+	loader.load('model/house.obj','model/house.mtl',function(object){
 		object.position.x = -30;
 		object.position.y = 0;
 		object.position.z = 0;
@@ -30,8 +71,16 @@ function init()
 				if (node.material){
 					node.material.side = THREE.DoubleSide;					}
 		});
-		scene.add(object);
+		houseContainer.add(object);
+	//	houseContainer.scale.set(10,10,10);
+		scene.add(houseContainer);
 	});
+
+
+	// add a plane as ground  ---- not working right now!!!
+//	groundMaterial = new THREE.MeshLambertMaterial({color:ffff00,side:THREE.DoubleSide});
+//	ground = new THREE.Mesh(new THREE.PlaneGeoemtry(500,500,1),groundMaterial);
+//	scene.add(ground);
 	
 		// add directional light
 	var directionalLight = new THREE.DirectionalLight(0xffffff,0.5);
