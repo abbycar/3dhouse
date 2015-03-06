@@ -164,7 +164,7 @@ function init()
 		} else if ( guiConfig.cameraView == 'First-person') { 
 			// camera position for first person point of view
 			controls = new THREE.FirstPersonControls(camera, renderer.domElement);
-			controls.movementSpeed = 70;
+			controls.movementSpeed = 20;
 			controls.lookSpeed = 0.05;
 			controls.noFly = true;
 			controls.lookVertical = false;
