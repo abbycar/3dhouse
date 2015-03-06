@@ -2,7 +2,7 @@ var RENDER_WIDTH = window.innerWidth, RENDER_HEIGHT = window.innerHeight;
 var controls,renderer,scene,camera;
 var ground,houseContainer;
 var groundMaterial;
-var viewFlag = true;
+var projector, mouse = { x: 0, y: 0 }, INTERSECTED;
 
 var clock = new THREE.Clock();
 init();
@@ -86,7 +86,7 @@ function init()
 		scene.add(houseContainer);
 	});
 
-
+	// Base ground plane
 	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 300, 300 );
 	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0x545454, side: THREE.DoubleSide} );
 	var plane = new THREE.Mesh( planeGeometry, planeMaterial );
@@ -96,9 +96,33 @@ function init()
 	plane.rotation.x = 1.57;
 	scene.add( plane ); 
 	
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       Living Room             ///////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	// Living room highlight plane
+	var livingPts = [];
+	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
+	livingPts.push( new THREE.Vector2 ( 54.5, 0 ) );
+	livingPts.push( new THREE.Vector2 ( 54.5, 85 ) );
+	livingPts.push( new THREE.Vector2 ( 0, 85 ) );
+	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
 
-
-	controls= new THREE.OrbitControls(camera, renderer.domElement);
+	var livingShape = new THREE.Shape( livingPts );
+	var livingGeometry = new THREE.ShapeGeometry( livingShape );
+	var livingMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide, transparent: true} );
+	var livingHighlight = new THREE.Mesh( livingGeometry, livingMaterial );
+	// Make plane transparent
+	livingMaterial.opacity = 0;
+	livingHighlight.position.set( 44,.2,-56 );
+	livingHighlight.rotation.x = 1.57;
+	livingHighlight.name = "Living Room";
+	scene.add( livingHighlight );	
+	
+	
+	
+	
+	controls = new THREE.OrbitControls(camera, renderer.domElement);
 	
 
 	// add window resize controller
@@ -135,9 +159,10 @@ function init()
 			controls.lookSpeed = 0.05;
 			controls.noFly = true;
 			controls.lookVertical = false;
-			camera.position.y = 15;
+			controls.lon = 270;
+			camera.position.y = 17;
 			camera.position.x = 90;
-			camera.position.z = 20;
+			camera.position.z = 60;
 			//camera.lookAt(90, 15, 0)
 
 		}
@@ -148,8 +173,23 @@ function init()
 	
 	// Show the control instructions in a pop up if clicked
 	gui.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
-		alert("Left Click + Move mouse = Rotate" + "\n" + "Right Click + Move mouse = Pan" + 
-		"\n" + "Scroll up = Zoom in" + "\n" + "Scroll down = Zoom out");
+		alert(
+		"---------------------------------------------\n" 
+		+ "Top-Down View Controls \n" 
+		+ "--------------------------------------------- \n" 
+		+ "Left Click + Move mouse = Rotate\n" 
+		+ "Right Click + Move mouse = Pan\n" 
+		+ "Scroll up = Zoom in\n" 
+		+ "Scroll down = Zoom out \n\n" 
+		+ "---------------------------------------------\n" 
+		+ "First-Person View Controls \n" 
+		+ "--------------------------------------------- \n"
+		+ "Move Mouse = Look around \n"
+		+ "W = Forward \n"
+		+ "A = Strife Left \n"
+		+ "S = Backward \n"
+		+ "D = Strife Right"
+		);
 	} );
 	
 
