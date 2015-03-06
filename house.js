@@ -30,11 +30,15 @@ function init()
 	div.appendChild(renderer.domElement);
 	scene = new THREE.Scene();
 	// add camera to the scene
+	
 	camera = new THREE.PerspectiveCamera(45, RENDER_WIDTH / RENDER_HEIGHT, 0.1, 10000);
 	camera.position.y = 240;
 	camera.position.x = 20;
 	camera.position.z = -20;
 	scene.add(camera);
+	controls = new THREE.OrbitControls(camera, renderer.domElement);
+	// add window resize controller
+	window.addEventListener( 'resize', onWindowResize, false );
 	var axes = new THREE.AxisHelper(100);
 	axes.position.y = 5;
 	scene.add( axes );
@@ -109,7 +113,7 @@ function init()
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Living Room             ///////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////
-	// Living room highlight plane
+	// Living room floor plane
 	var livingPts = [];
 	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
 	livingPts.push( new THREE.Vector2 ( 54.5, 0 ) );
@@ -119,23 +123,38 @@ function init()
 
 	var livingShape = new THREE.Shape( livingPts );
 	var livingGeometry = new THREE.ShapeGeometry( livingShape );
-	var livingMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide, transparent: true} );
+	var livingMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: 
+	THREE.DoubleSide, transparent: false} );
 	var livingHighlight = new THREE.Mesh( livingGeometry, livingMaterial );
-	// Make plane transparent
-	livingMaterial.opacity = 0;
 	livingHighlight.position.set( 44,.2,-56 );
 	livingHighlight.rotation.x = 1.57;
 	livingHighlight.name = "Living Room";
 	scene.add( livingHighlight );	
 	
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       Bathroom                ///////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	// bathroom room floor plane
+	var bathroomPts = [];
+	bathroomPts.push( new THREE.Vector2 ( 0, 0 ) );
+	bathroomPts.push( new THREE.Vector2 ( 28.5, 0 ) );
+	bathroomPts.push( new THREE.Vector2 ( 28.5, 44 ) );
+	bathroomPts.push( new THREE.Vector2 ( 0, 44 ) );
+	bathroomPts.push( new THREE.Vector2 ( 0, 0 ) );
+
+	var bathroomShape = new THREE.Shape( bathroomPts );
+	var bathroomGeometry = new THREE.ShapeGeometry( bathroomShape );
+	var bathroomMaterial = new THREE.MeshLambertMaterial( {color: 0xff0000, side: 
+	THREE.DoubleSide, transparent: false} );
+	var bathroomHighlight = new THREE.Mesh( bathroomGeometry, bathroomMaterial );
+	bathroomHighlight.position.set( 15.5,.2,-38 );
+	bathroomHighlight.rotation.x = 1.57;
+	bathroomHighlight.name = "Bathroom";
+	scene.add( bathroomHighlight );	
 	
 	
-	
-	controls = new THREE.OrbitControls(camera, renderer.domElement);
 	
 
-	// add window resize controller
-	window.addEventListener( 'resize', onWindowResize, false );
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       GUI             ///////////////////////////////
