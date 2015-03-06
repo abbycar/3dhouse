@@ -1,3 +1,12 @@
+//============================================================================
+// Name        : house.js
+// Author      : Abby Carey & Tina Pi
+// Assignment  : 3D House Explorer - Code Drop 1
+// Description : This is a 3D house for you to explore! In Progress
+//============================================================================
+
+
+
 var RENDER_WIDTH = window.innerWidth, RENDER_HEIGHT = window.innerHeight;
 var controls,renderer,scene,camera;
 var ground,houseContainer;
