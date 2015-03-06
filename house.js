@@ -1,5 +1,5 @@
 var RENDER_WIDTH = window.innerWidth, RENDER_HEIGHT = window.innerHeight;
-var controls1,controls2,renderer,scene,camera;
+var controls,renderer,scene,camera;
 var ground,houseContainer;
 var groundMaterial;
 var viewFlag = true;
@@ -98,13 +98,16 @@ function init()
 	
 
 
-	controls2= new THREE.OrbitControls(camera, renderer.domElement);
+	controls= new THREE.OrbitControls(camera, renderer.domElement);
 	
 
 	// add window resize controller
 	window.addEventListener( 'resize', onWindowResize, false );
 	
-		// Hold default values for the GUI
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       GUI             ///////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	// Hold default values for the GUI
 	var guiConfigData = function() {
 		this.showControls = function() {
 		};
@@ -112,28 +115,30 @@ function init()
 		this.cameraView = "Top-down"; // defaults to "top-down" view
 	};
 	
-
 	// Create the GUI frame
 	var  guiConfig = new guiConfigData(  );
 	var gui = new dat.GUI( );
 	gui.open();
 	// Drop down menu to pick the view of the camera
-	gui.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View").onChange( function() {
+	gui.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View")
+			.onChange( function() {
 		if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
-			controls2= new THREE.OrbitControls(camera, renderer.domElement);
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
 			// topdown position
 			camera.position.y = 240;
 			camera.position.x = 20;
 			camera.position.z = -20;
-		} else if ( guiConfig.cameraView == 'First-person') { // camera position for first person point of view
-			controls2 = new THREE.FirstPersonControls(camera, renderer.domElement);
-			controls2.movementSpeed = 70;
-			controls2.lookSpeed = 0.05;
-			controls2.noFly = true;
-			controls2.lookVertical = false;
+		} else if ( guiConfig.cameraView == 'First-person') { 
+			// camera position for first person point of view
+			controls = new THREE.FirstPersonControls(camera, renderer.domElement);
+			controls.movementSpeed = 70;
+			controls.lookSpeed = 0.05;
+			controls.noFly = true;
+			controls.lookVertical = false;
 			camera.position.y = 15;
-			camera.position.x = 0;
-			camera.position.z = 0;
+			camera.position.x = 90;
+			camera.position.z = 20;
+			//camera.lookAt(90, 15, 0)
 
 		}
 	});	
@@ -159,8 +164,7 @@ function animate()
 }		
 
 function render() {
-	controls2.update( clock.getDelta() );
-	//controls1.update();
+	controls.update( clock.getDelta() );
 	renderer.render( scene, camera );
 }
 
