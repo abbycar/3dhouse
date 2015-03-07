@@ -116,9 +116,9 @@ function init()
 	// Living room floor plane
 	var livingPts = [];
 	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
-	livingPts.push( new THREE.Vector2 ( 54.5, 0 ) );
-	livingPts.push( new THREE.Vector2 ( 54.5, 85 ) );
-	livingPts.push( new THREE.Vector2 ( 0, 85 ) );
+	livingPts.push( new THREE.Vector2 ( 54.8, 0 ) );
+	livingPts.push( new THREE.Vector2 ( 54.8, 87 ) );
+	livingPts.push( new THREE.Vector2 ( 0, 87 ) );
 	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
 
 	var livingShape = new THREE.Shape( livingPts );
@@ -126,7 +126,7 @@ function init()
 	var livingMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: 
 	THREE.DoubleSide, transparent: false} );
 	var livingHighlight = new THREE.Mesh( livingGeometry, livingMaterial );
-	livingHighlight.position.set( 44,.2,-56 );
+	livingHighlight.position.set( 43.8,.4,-58 );
 	livingHighlight.rotation.x = 1.57;
 	livingHighlight.name = "Living Room";
 	scene.add( livingHighlight );	
@@ -147,14 +147,76 @@ function init()
 	var bathroomMaterial = new THREE.MeshLambertMaterial( {color: 0xff0000, side: 
 	THREE.DoubleSide, transparent: false} );
 	var bathroomHighlight = new THREE.Mesh( bathroomGeometry, bathroomMaterial );
-	bathroomHighlight.position.set( 15.5,.2,-38 );
+	bathroomHighlight.position.set( 15.5,.4,-38 );
 	bathroomHighlight.rotation.x = 1.57;
 	bathroomHighlight.name = "Bathroom";
 	scene.add( bathroomHighlight );	
 	
 	
-	
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       Kitchen                ///////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	// kitchen room floor plane
+	var kitchenPts = [];
+	kitchenPts.push( new THREE.Vector2 ( 0, 0 ) );
+	kitchenPts.push( new THREE.Vector2 ( 44, 0 ) );
+	kitchenPts.push( new THREE.Vector2 ( 44, 57 ) );
+	kitchenPts.push( new THREE.Vector2 ( 0, 57 ) );
+	kitchenPts.push( new THREE.Vector2 ( 0, 0 ) );
 
+	var kitchenShape = new THREE.Shape( kitchenPts );
+	var kitchenGeometry = new THREE.ShapeGeometry( kitchenShape );
+	var kitchenMaterial = new THREE.MeshLambertMaterial( {color: 0x000000, side: 
+	THREE.DoubleSide, transparent: false} );
+	var kitchenHighlight = new THREE.Mesh( kitchenGeometry, kitchenMaterial );
+	kitchenHighlight.position.set( -29,.4,-27.5 );
+	kitchenHighlight.rotation.x = 1.57;
+	kitchenHighlight.name = "Kitchen";
+	scene.add( kitchenHighlight );	
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       Dining room                ////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	// dining room floor plane
+	var diningPts = [];
+	diningPts.push( new THREE.Vector2 ( 0, 0 ) );
+	diningPts.push( new THREE.Vector2 ( 45, 0 ) );
+	diningPts.push( new THREE.Vector2 ( 45, 73 ) );
+	diningPts.push( new THREE.Vector2 ( 0, 73 ) );
+	diningPts.push( new THREE.Vector2 ( 0, 0 ) );
+
+	var diningShape = new THREE.Shape( diningPts );
+	var diningGeometry = new THREE.ShapeGeometry( diningShape );
+	var diningMaterial = new THREE.MeshLambertMaterial( {color: 0x0000FF, side: 
+	THREE.DoubleSide, transparent: false} );
+	var diningHighlight = new THREE.Mesh( diningGeometry, diningMaterial );
+	diningHighlight.position.set( -29,.4,-100 );
+	diningHighlight.rotation.x = 1.57;
+	diningHighlight.name = "Dining Room";
+	scene.add( diningHighlight );
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       Bedroom                ////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	// bed room floor plane
+	var bedPts = [];
+	bedPts.push( new THREE.Vector2 ( 0, 0 ) );
+	bedPts.push( new THREE.Vector2 ( 83, 0 ) );
+	bedPts.push( new THREE.Vector2 ( 83, 44 ) );
+	bedPts.push( new THREE.Vector2 ( 0, 44 ) );
+	bedPts.push( new THREE.Vector2 ( 0, 0 ) );
+
+	var bedShape = new THREE.Shape( bedPts );
+	var bedGeometry = new THREE.ShapeGeometry( bedShape );
+	var bedMaterial = new THREE.MeshLambertMaterial( {color: 0x00FF00, side: 
+	THREE.DoubleSide, transparent: false} );
+	var bedHighlight = new THREE.Mesh( bedGeometry, bedMaterial );
+	bedHighlight.position.set( 16,.4,-100.5 );
+	bedHighlight.rotation.x = 1.57;
+	bedHighlight.name = "Bedroom";
+	scene.add( bedHighlight );
+	
+	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       GUI             ///////////////////////////////
