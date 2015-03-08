@@ -448,6 +448,7 @@ function onDocumentMouseDown( event )
 			// in firstPerson
 			firstPerson = true;
 			console.log("firstperson = " + firstPerson);
+			makeGui2();
 			
 			if ( intersects[ 0 ].object.name == "Living Room") {
 				controls.lon = 270;
