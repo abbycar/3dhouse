@@ -12,9 +12,10 @@ var controls,renderer,scene,camera, container;
 var ground,houseContainer;
 var groundMaterial;
 var mouse = { x: 0, y: 0 }, INTERSECTED;
-
+var targetList = [];
 var clock = new THREE.Clock();
 var canvas1, context1, texture1;
+var firstPerson = false; // toggle to see if in firstPerson view
 init();
 animate();
 
@@ -131,6 +132,8 @@ function init()
 	livingHighlight.rotation.x = 1.57;
 	livingHighlight.name = "Living Room";
 	scene.add( livingHighlight );	
+	// allow mesh to be clicked
+	targetList.push(livingHighlight);
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Bathroom                ///////////////////////
@@ -152,6 +155,7 @@ function init()
 	bathroomHighlight.rotation.x = 1.57;
 	bathroomHighlight.name = "Bathroom";
 	scene.add( bathroomHighlight );	
+	targetList.push(bathroomHighlight);
 	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +178,7 @@ function init()
 	kitchenHighlight.rotation.x = 1.57;
 	kitchenHighlight.name = "Kitchen";
 	scene.add( kitchenHighlight );	
+	targetList.push(kitchenHighlight);
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Dining room                ////////////////////
@@ -195,6 +200,7 @@ function init()
 	diningHighlight.rotation.x = 1.57;
 	diningHighlight.name = "Dining Room";
 	scene.add( diningHighlight );
+	targetList.push(diningHighlight);
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Bedroom                ////////////////////
@@ -216,30 +222,7 @@ function init()
 	bedHighlight.rotation.x = 1.57;
 	bedHighlight.name = "Bedroom";
 	scene.add( bedHighlight );
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	targetList.push(bedHighlight);
 	
 	
 	
@@ -268,6 +251,8 @@ function init()
 			camera.position.y = 240;
 			camera.position.x = 20;
 			camera.position.z = -20;
+			viewToggle = false;
+			console.log("firstperson = " + viewToggle);
 		} else if ( guiConfig.cameraView == 'First-person') { 
 			// camera position for first person point of view
 			controls = new THREE.FirstPersonControls(camera, renderer.domElement);
@@ -279,7 +264,8 @@ function init()
 			camera.position.y = 17;
 			camera.position.x = 90;
 			camera.position.z = 60;
-			//camera.lookAt(90, 15, 0)
+			viewToggle = true;
+			console.log("firstperson = " + viewToggle);
 
 		}
 	});	
@@ -311,6 +297,7 @@ function init()
 	
 	// when the mouse moves, call the given function
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	
 
 		/////// draw text on canvas /////////
@@ -330,7 +317,7 @@ function init()
 	var spriteMaterial = new THREE.SpriteMaterial( { map: texture1, useScreenCoordinates: true} );
 	sprite1 = new THREE.Sprite( spriteMaterial );
 	sprite1.scale.set(200,100,1.0);
-	sprite1.position.set( 50, 50, 0 );
+	sprite1.position.set( 0, 0, 0 );
 	scene.add( sprite1 );	
 	
 
@@ -342,7 +329,71 @@ function init()
 	
 }
 
-	function onDocumentMouseMove( event ) 
+
+function onDocumentMouseDown( event ) 
+{		
+	// update the mouse variable
+	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	
+	// create a Ray with origin at the mouse position
+	//   and direction into the scene (camera direction)
+	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+	vector.unproject(camera );
+	var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+	// create an array containing all objects in the scene with which the ray intersects
+	var intersects = ray.intersectObjects( targetList );
+
+	// if there is one (or more) intersections
+	if ( intersects.length > 0 )
+	{
+		console.log("Hit @ " + toString( intersects[0].point ) );
+		controls = new THREE.FirstPersonControls(camera, renderer.domElement);
+		controls.movementSpeed = 20;
+		controls.lookSpeed = 0.05;
+		controls.noFly = true;
+		controls.lookVertical = false;
+		// in firstPerson
+		viewToggle = true;
+		console.log("firstperson = " + viewToggle);
+		
+		if ( intersects[ 0 ].object.name == "Living Room") {
+			controls.lon = 270;
+			camera.position.y = 17;
+			camera.position.x = 90;
+			camera.position.z = 60;
+		} else if ( intersects[ 0 ].object.name == "Kitchen") {
+			controls.lon = 180;
+			camera.position.y = 17;
+			camera.position.x = 30;
+			camera.position.z = 20;
+		} else if ( intersects[ 0 ].object.name == "Bathroom") {
+			controls.lon = 90;
+			camera.position.y = 17;
+			camera.position.x = 40;
+			camera.position.z = -42;
+		} else if ( intersects[ 0 ].object.name == "Dining Room") {
+			controls.lon = 270;
+			camera.position.y = 17;
+			camera.position.x = 0;
+			camera.position.z = -20;
+		} else if ( intersects[ 0 ].object.name == "Bedroom") {
+			controls.lon = 180;
+			camera.position.y = 17;
+			camera.position.x = 95;
+			camera.position.z = -80;
+		} else {
+			return;
+		}
+	}
+}
+
+
+// location of click
+function toString(v) { return "[ " + v.x + ", " + v.y + ", " + v.z + " ]"; }
+
+
+function onDocumentMouseMove( event ) 
 {
 	// the following line would stop any other event handler from firing
 	// (such as the mouse's TrackballControls)
@@ -354,6 +405,7 @@ function init()
 	// update the mouse variable
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	
 }
 
 
@@ -372,7 +424,7 @@ function render() {
 	var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 
 	// create an array containing all objects in the scene with which the ray intersects
-	var intersects = ray.intersectObjects( scene.children );
+	var intersects = ray.intersectObjects( targetList );
 
 	// INTERSECTED = the object in the scene currently closest to the camera 
 	//		and intersected by the Ray projected from the mouse position 	
@@ -393,10 +445,10 @@ function render() {
 			// set a new color for closest object
 			INTERSECTED.material.color.setHex( 0xffff00 );
 			
-			// update text, if it has a "name" field.
+			/* update text, if it has a "name" field.
 			if ( intersects[ 0 ].object.name )
 			{
-			    context1.clearRect(0,0,640,480);
+			    context1.clearRect(0,0,50,50);
 				var message = intersects[ 0 ].object.name;
 				var metrics = context1.measureText(message);
 				var width = metrics.width;
@@ -413,7 +465,9 @@ function render() {
 				context1.clearRect(0,0,300,300);
 				texture1.needsUpdate = true;
 			}
+			*/
 		}
+		
 	} 
 	else // there are no intersections
 	{
