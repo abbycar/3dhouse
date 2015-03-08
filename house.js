@@ -377,6 +377,7 @@ function init()
 	/////////////////////////////////////////////////////////////////////////////////////	
 	function makeGui2() {
 		gui.destroy();
+		roofMaterial.opacity = 1;
 		// temp gui for firstperson view
 		var	guiConfigData = function() {
 			this.showControls = function() {
