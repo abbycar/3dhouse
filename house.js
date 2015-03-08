@@ -251,8 +251,8 @@ function init()
 			camera.position.y = 240;
 			camera.position.x = 20;
 			camera.position.z = -20;
-			viewToggle = false;
-			console.log("firstperson = " + viewToggle);
+			firstPerson = false;
+			console.log("firstperson = " + firstPerson);
 		} else if ( guiConfig.cameraView == 'First-person') { 
 			// camera position for first person point of view
 			controls = new THREE.FirstPersonControls(camera, renderer.domElement);
@@ -264,8 +264,8 @@ function init()
 			camera.position.y = 17;
 			camera.position.x = 90;
 			camera.position.z = 60;
-			viewToggle = true;
-			console.log("firstperson = " + viewToggle);
+			firstPerson = true;
+			console.log("firstperson = " + firstPerson);
 
 		}
 	});	
@@ -344,18 +344,20 @@ function onDocumentMouseDown( event )
 	// create an array containing all objects in the scene with which the ray intersects
 	var intersects = ray.intersectObjects( targetList );
 
-	// if there is one (or more) intersections
-	if ( intersects.length > 0 )
+	// check to see if there is an intersection
+	// clicking on room floors only allowed in topDown view
+	if ( intersects.length > 0 && firstPerson == false)
 	{
 		console.log("Hit @ " + toString( intersects[0].point ) );
+		// Switch to firstPerson settings
 		controls = new THREE.FirstPersonControls(camera, renderer.domElement);
 		controls.movementSpeed = 20;
 		controls.lookSpeed = 0.05;
 		controls.noFly = true;
 		controls.lookVertical = false;
 		// in firstPerson
-		viewToggle = true;
-		console.log("firstperson = " + viewToggle);
+		firstPerson = true;
+		console.log("firstperson = " + firstPerson);
 		
 		if ( intersects[ 0 ].object.name == "Living Room") {
 			controls.lon = 270;
@@ -429,8 +431,9 @@ function render() {
 	// INTERSECTED = the object in the scene currently closest to the camera 
 	//		and intersected by the Ray projected from the mouse position 	
 	
-	// if there is one (or more) intersections
-	if ( intersects.length > 0 )
+	// check to see if there is an intersection
+	// only allow for highlight if not in firstPerson view	
+	if ( intersects.length > 0 && firstPerson == false)
 	{
 		// if the closest object intersected is not the currently stored intersection object
 		if ( intersects[ 0 ].object != INTERSECTED ) 
