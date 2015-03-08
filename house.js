@@ -19,6 +19,7 @@ var clock = new THREE.Clock();
 var canvas1, context1, texture1;
 var firstPerson = false; // toggle to see if in firstPerson view
 var guiDestroyFlag = false;
+var roofMaterial;
 init();
 animate();
 
@@ -100,7 +101,7 @@ function init()
 					node.material.side = THREE.DoubleSide;					}
 		});
 		houseContainer.add(object);
-	//	houseContainer.scale.set(10,10,10);
+	//	houseContainer.scale.xset(10,10,10);
 		scene.add(houseContainer);
 	});
 
@@ -114,6 +115,27 @@ function init()
 	plane.rotation.x = 1.57;
 	scene.add( plane ); 
 	
+	
+	
+	// Roof plane
+	var roofPts = [];
+	roofPts.push( new THREE.Vector2 ( 0, 0 ) );
+	roofPts.push( new THREE.Vector2 ( 128, 0 ) );
+	roofPts.push( new THREE.Vector2 ( 128, 156 ) );
+	roofPts.push( new THREE.Vector2 ( 102, 156 ) );
+	roofPts.push( new THREE.Vector2 ( 102, 130.5 ) );
+	roofPts.push( new THREE.Vector2 ( 0, 131 ) );
+	roofPts.push( new THREE.Vector2 ( 0, 0 ) );
+
+	var roofShape = new THREE.Shape( roofPts );
+	var roofGeometry = new THREE.ShapeGeometry( roofShape );
+	roofMaterial = new THREE.MeshLambertMaterial( {color: 0xff0000, side: 
+	THREE.DoubleSide, transparent: true} );
+	var roof = new THREE.Mesh( roofGeometry, roofMaterial );
+	roof.position.set( -29,25.4,-101 );
+	roof.rotation.x = 1.57;
+	roofMaterial.opacity = 0;
+	scene.add( roof );	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Living Room             ///////////////////////
@@ -137,6 +159,7 @@ function init()
 	scene.add( livingHighlight );	
 	// allow mesh to be clicked
 	targetList.push(livingHighlight);
+	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Bathroom                ///////////////////////
@@ -299,6 +322,7 @@ function init()
 		var view = gui.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View")
 				.onChange( function() {
 			if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
+				roofMaterial.opacity = 0;
 				controls = new THREE.OrbitControls(camera, renderer.domElement);
 				// topdown position
 				camera.position.y = 240;
@@ -308,6 +332,7 @@ function init()
 				console.log("firstperson = " + firstPerson);
 			} else if ( guiConfig.cameraView == 'First-person') { 
 				// camera position for first person point of view
+				roofMaterial.opacity = 1;
 				controls = new THREE.FirstPersonControls(camera, renderer.domElement);
 				controls.movementSpeed = 20;
 				controls.lookSpeed = 0.05;
@@ -368,6 +393,7 @@ function init()
 		var view = gui.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View 2")
 				.onChange( function() {
 			if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
+				roofMaterial.opacity = 0;
 				controls = new THREE.OrbitControls(camera, renderer.domElement);
 				// topdown position
 				camera.position.y = 240;
@@ -379,6 +405,7 @@ function init()
 				makeGui1();
 			} else if ( guiConfig.cameraView == 'First-person') { 
 				// camera position for first person point of view
+				roofMaterial.opacity = 1;
 				controls = new THREE.FirstPersonControls(camera, renderer.domElement);
 				controls.movementSpeed = 20;
 				controls.lookSpeed = 0.05;
