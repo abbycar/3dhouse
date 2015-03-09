@@ -138,7 +138,7 @@ function init()
 	roofMaterial = new THREE.MeshBasicMaterial( {color: 0xd3d3d3, side: 
 	THREE.DoubleSide, transparent: true} );
 	var roof = new THREE.Mesh( roofGeometry, roofMaterial );
-	roof.position.set( -44,25.5,-134 );
+	roof.position.set( -44,25.2,-134 );
 	roof.rotation.x = 1.57;
 	roofMaterial.opacity = 0;
 	scene.add( roof );	
@@ -348,9 +348,9 @@ function init()
 				controls.noFly = true;
 				controls.lookVertical = false;
 				controls.lon = 270;
+				camera.position.z = 60;
 				camera.position.y = 17;
 				camera.position.x = 90;
-				camera.position.z = 60;
 				firstPerson = true;
 				console.log("firstperson = " + firstPerson);
 				makeGui2();
@@ -521,10 +521,10 @@ function onDocumentMouseDown( event )
 				camera.position.x = 40;
 				camera.position.z = -42;
 			} else if ( intersects[ 0 ].object.name == "Dining Room") {
-				controls.lon = 270;
+				controls.lon = 220;
 				camera.position.y = 17;
-				camera.position.x = 0;
-				camera.position.z = -20;
+				camera.position.x = 20;
+				camera.position.z = -45;
 			} else if ( intersects[ 0 ].object.name == "Bedroom") {
 				controls.lon = 180;
 				camera.position.y = 17;
