@@ -101,7 +101,6 @@ function init()
 					node.material.side = THREE.DoubleSide;					}
 		});
 		houseContainer.add(object);
-	//	houseContainer.scale.xset(10,10,10);
 		scene.add(houseContainer);
 	});
 
@@ -127,11 +126,11 @@ function init()
 	// Roof plane
 	var roofPts = [];
 	roofPts.push( new THREE.Vector2 ( 0, 0 ) );
-	roofPts.push( new THREE.Vector2 ( 128, 0 ) );
-	roofPts.push( new THREE.Vector2 ( 128, 156 ) );
-	roofPts.push( new THREE.Vector2 ( 102, 156 ) );
-	roofPts.push( new THREE.Vector2 ( 102, 130.5 ) );
-	roofPts.push( new THREE.Vector2 ( 0, 131 ) );
+	roofPts.push( new THREE.Vector2 ( 151, 0 ) );
+	roofPts.push( new THREE.Vector2 ( 151, 189 ) );
+	roofPts.push( new THREE.Vector2 ( 117, 189 ) );
+	roofPts.push( new THREE.Vector2 ( 117, 164 ) );
+	roofPts.push( new THREE.Vector2 ( 0, 164 ) );
 	roofPts.push( new THREE.Vector2 ( 0, 0 ) );
 
 	var roofShape = new THREE.Shape( roofPts );
@@ -139,9 +138,9 @@ function init()
 	roofMaterial = new THREE.MeshBasicMaterial( {color: 0xd3d3d3, side: 
 	THREE.DoubleSide, transparent: true} );
 	var roof = new THREE.Mesh( roofGeometry, roofMaterial );
-	roof.position.set( -29,25,-100 );
+	roof.position.set( -44,25.5,-134 );
 	roof.rotation.x = 1.57;
-	roofMaterial.opacity = 1;
+	roofMaterial.opacity = 0;
 	scene.add( roof );	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -150,9 +149,9 @@ function init()
 	// Living room floor plane
 	var livingPts = [];
 	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
-	livingPts.push( new THREE.Vector2 ( 54.8, 0 ) );
-	livingPts.push( new THREE.Vector2 ( 54.8, 87 ) );
-	livingPts.push( new THREE.Vector2 ( 0, 87 ) );
+	livingPts.push( new THREE.Vector2 ( 62, 0 ) );
+	livingPts.push( new THREE.Vector2 ( 62, 96 ) );
+	livingPts.push( new THREE.Vector2 ( 0, 96 ) );
 	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
 
 	var livingShape = new THREE.Shape( livingPts );
@@ -160,7 +159,7 @@ function init()
 	var livingMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: 
 	THREE.DoubleSide, transparent: false} );
 	var livingHighlight = new THREE.Mesh( livingGeometry, livingMaterial );
-	livingHighlight.position.set( 43.8,.4,-58 );
+	livingHighlight.position.set( 47,.4,-66.5 );
 	livingHighlight.rotation.x = 1.57;
 	livingHighlight.name = "Living Room";
 	scene.add( livingHighlight );	
@@ -174,8 +173,8 @@ function init()
 	// bathroom room floor plane
 	var bathroomPts = [];
 	bathroomPts.push( new THREE.Vector2 ( 0, 0 ) );
-	bathroomPts.push( new THREE.Vector2 ( 28.5, 0 ) );
-	bathroomPts.push( new THREE.Vector2 ( 28.5, 44 ) );
+	bathroomPts.push( new THREE.Vector2 ( 32, 0 ) );
+	bathroomPts.push( new THREE.Vector2 ( 32, 44 ) );
 	bathroomPts.push( new THREE.Vector2 ( 0, 44 ) );
 	bathroomPts.push( new THREE.Vector2 ( 0, 0 ) );
 
@@ -197,9 +196,10 @@ function init()
 	// kitchen room floor plane
 	var kitchenPts = [];
 	kitchenPts.push( new THREE.Vector2 ( 0, 0 ) );
-	kitchenPts.push( new THREE.Vector2 ( 44, 0 ) );
-	kitchenPts.push( new THREE.Vector2 ( 44, 57 ) );
-	kitchenPts.push( new THREE.Vector2 ( 0, 57 ) );
+	kitchenPts.push( new THREE.Vector2 ( 35, 0 ) );
+	kitchenPts.push( new THREE.Vector2 ( 60.5, 10 ) );
+	kitchenPts.push( new THREE.Vector2 ( 60.5, 78 ) );
+	kitchenPts.push( new THREE.Vector2 ( 0, 78 ) );
 	kitchenPts.push( new THREE.Vector2 ( 0, 0 ) );
 
 	var kitchenShape = new THREE.Shape( kitchenPts );
@@ -207,7 +207,7 @@ function init()
 	var kitchenMaterial = new THREE.MeshLambertMaterial( {color: 0x000000, side: 
 	THREE.DoubleSide, transparent: false} );
 	var kitchenHighlight = new THREE.Mesh( kitchenGeometry, kitchenMaterial );
-	kitchenHighlight.position.set( -29,.4,-27.5 );
+	kitchenHighlight.position.set( -45,.4,-48.5 );
 	kitchenHighlight.rotation.x = 1.57;
 	kitchenHighlight.name = "Kitchen";
 	scene.add( kitchenHighlight );	
@@ -219,9 +219,10 @@ function init()
 	// dining room floor plane
 	var diningPts = [];
 	diningPts.push( new THREE.Vector2 ( 0, 0 ) );
-	diningPts.push( new THREE.Vector2 ( 45, 0 ) );
-	diningPts.push( new THREE.Vector2 ( 45, 73 ) );
-	diningPts.push( new THREE.Vector2 ( 0, 73 ) );
+	diningPts.push( new THREE.Vector2 ( 61, 0 ) );
+	diningPts.push( new THREE.Vector2 ( 61, 67.5 ) );
+	diningPts.push( new THREE.Vector2 ( 35, 85 ) );
+	diningPts.push( new THREE.Vector2 ( 0, 85 ) );
 	diningPts.push( new THREE.Vector2 ( 0, 0 ) );
 
 	var diningShape = new THREE.Shape( diningPts );
@@ -229,7 +230,7 @@ function init()
 	var diningMaterial = new THREE.MeshLambertMaterial( {color: 0x0000FF, side: 
 	THREE.DoubleSide, transparent: false} );
 	var diningHighlight = new THREE.Mesh( diningGeometry, diningMaterial );
-	diningHighlight.position.set( -29,.4,-100 );
+	diningHighlight.position.set( -45,.4,-133 );
 	diningHighlight.rotation.x = 1.57;
 	diningHighlight.name = "Dining Room";
 	scene.add( diningHighlight );
@@ -241,9 +242,9 @@ function init()
 	// bed room floor plane
 	var bedPts = [];
 	bedPts.push( new THREE.Vector2 ( 0, 0 ) );
-	bedPts.push( new THREE.Vector2 ( 83, 0 ) );
-	bedPts.push( new THREE.Vector2 ( 83, 44 ) );
-	bedPts.push( new THREE.Vector2 ( 0, 44 ) );
+	bedPts.push( new THREE.Vector2 ( 91, 0 ) );
+	bedPts.push( new THREE.Vector2 ( 91, 67 ) );
+	bedPts.push( new THREE.Vector2 ( 0, 67 ) );
 	bedPts.push( new THREE.Vector2 ( 0, 0 ) );
 
 	var bedShape = new THREE.Shape( bedPts );
@@ -251,7 +252,7 @@ function init()
 	var bedMaterial = new THREE.MeshLambertMaterial( {color: 0x00FF00, side: 
 	THREE.DoubleSide, transparent: false} );
 	var bedHighlight = new THREE.Mesh( bedGeometry, bedMaterial );
-	bedHighlight.position.set( 16,.4,-100.5 );
+	bedHighlight.position.set( 16,.4,-133.5 );
 	bedHighlight.rotation.x = 1.57;
 	bedHighlight.name = "Bedroom";
 	scene.add( bedHighlight );
