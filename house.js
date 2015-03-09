@@ -10,7 +10,7 @@
 var RENDER_WIDTH = window.innerWidth, RENDER_HEIGHT = window.innerHeight;
 var controls,renderer,scene,camera, container;
 var ground,houseContainer;
-var groundMaterial;
+var groundMaterial,texture_update;
 var light;
 var gui;
 var mouse = { x: 0, y: 0 }, INTERSECTED;
@@ -94,7 +94,7 @@ function init()
 
     // loader to load in house model
     var loader = new THREE.OBJMTLLoader();
-	loader.load('model/house.obj','model/house.mtl',function(object){
+	loader.load('model/house1.obj','model/house1.mtl',function(object){
 	    object.position.x = -10;
 		object.traverse(function(node){
 				if (node.material){
@@ -107,12 +107,19 @@ function init()
 
 	// Base ground plane
 	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 300, 300 );
-	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0x545454, side: THREE.DoubleSide} );
+	var texture = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+ 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+	texture.repeat.set(5,5);
+	texture.needsUpdate = true;
+	var planeMaterial = new THREE.MeshLambertMaterial( {map: texture, side: THREE.DoubleSide} );
+//	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0x545454, side: THREE.DoubleSide} );
 	var plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	plane.position.set(50, 0, -30);
 	plane.receiveShadow = true;
 	plane.castShadow = false;
 	plane.rotation.x = 1.57;
+//	plane.material.map = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+//	plane.material.map.needsUpdate = true;
 	scene.add( plane ); 
 	
 	
@@ -129,12 +136,12 @@ function init()
 
 	var roofShape = new THREE.Shape( roofPts );
 	var roofGeometry = new THREE.ShapeGeometry( roofShape );
-	roofMaterial = new THREE.MeshLambertMaterial( {color: 0xff0000, side: 
+	roofMaterial = new THREE.MeshBasicMaterial( {color: 0xd3d3d3, side: 
 	THREE.DoubleSide, transparent: true} );
 	var roof = new THREE.Mesh( roofGeometry, roofMaterial );
-	roof.position.set( -29,25.4,-101 );
+	roof.position.set( -29,25,-100 );
 	roof.rotation.x = 1.57;
-	roofMaterial.opacity = 0;
+	roofMaterial.opacity = 1;
 	scene.add( roof );	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -312,6 +319,7 @@ function init()
 			};
 			this.intensity = 1; // light intensity
 			this.cameraView = "Top-down"; // defaults to "top-down" view
+			this.changeFloor = "floor";	// change the texture of the floor
 		};
 		
 		// Create the GUI frame
@@ -347,7 +355,25 @@ function init()
 				makeGui2();
 			}
 		});	
-			// Slide bar used for changing light intensity - in lighting folder
+			
+		gui.add( guiConfig, 'changeFloor', ['floor','floor1','floor2','floor3','floor4']).name("Change Floor")
+			.onChange( function() {
+				var path = "texture/" + guiConfig.changeFloor + ".jpg";
+				plane.material.map = THREE.ImageUtils.loadTexture( path);
+				plane.material.map.needsUpdate = true;
+
+				/*if (guiConfig.changeFloor == 'floor1')
+				{
+					plane.material.map = THREE.ImageUtils.loadTexture( "texture/floor1.jpg");
+					plane.material.map.needsUpdate = true;
+				}
+				else{
+					plane.material.map = THREE.ImageUtils.loadTexture( "texture/floor2.jpg");
+					plane.material.map.needsUpdate = true;
+				}*/
+		});
+
+	// Slide bar used for changing light intensity - in lighting folder
 	var intens = gui.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
 	gui.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
 		alert(
@@ -368,8 +394,7 @@ function init()
 		+ "D = Strife Right"
 		);
 	} );
-	
-	
+
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -440,6 +465,7 @@ function init()
 		+ "D = Strife Right"
 		);
 	} );
+		
 	}
 
 
