@@ -16,11 +16,12 @@ var gui;
 var mouse = { x: 0, y: 0 }, INTERSECTED;
 var targetList = [];
 var clock = new THREE.Clock();
-var canvas1, context1, texture1;
+var canvas1, context1, textureC;
 var firstPerson = false; // toggle to see if in firstPerson view
 var guiDestroyFlag = false;
 var roofMaterial;
 var plane, kitchenPlane, bedPlane, bathroomPlane, diningPlane, livingPlane;
+var textureBed, textureBath, textureKitchen, textureLiving, textureDining, textureHall1, textureHall2;
 init();
 animate();
 
@@ -51,36 +52,6 @@ function init()
 	axes.position.y = 5;
 	scene.add( axes );
 	
-	// add directional light
-	/*var directionalLight = new THREE.DirectionalLight(0xffffff,0.5);
-    directionalLight.position.set(1, 1, 1).normalize();
-    scene.add(directionalLight);
-
-    var ambientLight = new THREE.AmbientLight(0Xffffff);
-    ambientLight.position.set(0,1000,0);
-    scene.add(ambientLight);*/
-
-    // add a light above the scene to light up the whole scene
-	/*var hLight = new THREE.HemisphereLight(0x666666,0x555555,1.0);
-	scene.add(hLight);
-
-	scene.add( new THREE.AmbientLight( 0x505050 ) );
-
-	var light = new THREE.SpotLight( 0xffffff, 1.5 );
-	light.position.set( 300, 500, 2000 );
-	light.castShadow = true;
-
-	light.shadowCameraNear = 200;
-	light.shadowCameraFar = camera.far;
-	light.shadowCameraFov = 50;
-
-	light.shadowBias = -0.00022;
-	light.shadowDarkness = 0.5;
-
-	light.shadowMapWidth = 2048;
-	light.shadowMapHeight = 2048;
-
-	scene.add( light );*/
 	var ambientLight = new THREE.AmbientLight( 0x222222 );
 	light = new THREE.DirectionalLight( 0xffffff, 1.0 );
 	light.position.set( 200, 400, 500 );
@@ -106,13 +77,25 @@ function init()
 		houseContainer.add(object);
 		scene.add(houseContainer);
 	});
-
+	// Initialize floor textures
+	textureBed = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );  
+	setFloorTextureProperties(textureBed);
+	textureBath = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" ); 
+	setFloorTextureProperties(textureBath);
+	textureKitchen = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" ); 
+	setFloorTextureProperties(textureKitchen);
+	textureLiving = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" ); 
+	setFloorTextureProperties(textureLiving);
+	textureDining = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" ); 
+	setFloorTextureProperties(textureDining);
+	textureHall1 = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" ); 
+	setFloorTextureProperties(textureHall1);
+	textureHall2 = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+	setFloorTextureProperties(textureHall2);
+	
 	// Base ground plane
 	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 300, 300 );
-	var texture = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
- 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-	texture.repeat.set(20,20);
-	texture.needsUpdate = true;
+	
 	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
 	plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	plane.position.set(50, 0, -30);
@@ -149,21 +132,19 @@ function init()
 	// Living room floor plane
 	var livingPts = [];
 	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
-	livingPts.push( new THREE.Vector2 ( 62, 0 ) );
-	livingPts.push( new THREE.Vector2 ( 62, 96 ) );
+	livingPts.push( new THREE.Vector2 ( 60.6, 0 ) );
+	livingPts.push( new THREE.Vector2 ( 60.6, 122 ) );
+	livingPts.push( new THREE.Vector2 ( 27, 122 ) );
+	livingPts.push( new THREE.Vector2 ( 27, 96 ) );
 	livingPts.push( new THREE.Vector2 ( 0, 96 ) );
 	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
 
-	
-	
-	texture.repeat.set( 1 / 10, 1 / 10 );
-	texture.offset.set( 1, 1 );
 	var livingShape = new THREE.Shape( livingPts );
 	var livingGeometry = new THREE.ShapeGeometry( livingShape );
-	var livingMaterial = new THREE.MeshLambertMaterial( {map: texture, side: 
+	var livingMaterial = new THREE.MeshLambertMaterial( {map: textureLiving, side: 
 	THREE.DoubleSide} );
 	livingPlane = new THREE.Mesh( livingGeometry, livingMaterial );
-	livingPlane.position.set( 47,.4,-66.5 );
+	livingPlane.position.set( 47,.4,-66.7 );
 	livingPlane.rotation.x = 1.57;
 	livingPlane.name = "Living Room";
 	scene.add( livingPlane );	
@@ -181,10 +162,10 @@ function init()
 	bathroomPts.push( new THREE.Vector2 ( 32, 44 ) );
 	bathroomPts.push( new THREE.Vector2 ( 0, 44 ) );
 	bathroomPts.push( new THREE.Vector2 ( 0, 0 ) );
-
+	
 	var bathroomShape = new THREE.Shape( bathroomPts );
 	var bathroomGeometry = new THREE.ShapeGeometry( bathroomShape );
-	var bathroomMaterial = new THREE.MeshLambertMaterial( {color: 0xff0000, side: 
+	var bathroomMaterial = new THREE.MeshLambertMaterial( {map: textureBath, side: 
 	THREE.DoubleSide, transparent: false} );
 	bathroomPlane = new THREE.Mesh( bathroomGeometry, bathroomMaterial );
 	bathroomPlane.position.set( 15.5,.4,-38 );
@@ -200,15 +181,14 @@ function init()
 	// kitchen room floor plane
 	var kitchenPts = [];
 	kitchenPts.push( new THREE.Vector2 ( 0, 0 ) );
-	kitchenPts.push( new THREE.Vector2 ( 35, 0 ) );
-	kitchenPts.push( new THREE.Vector2 ( 60.5, 10 ) );
-	kitchenPts.push( new THREE.Vector2 ( 60.5, 78 ) );
+	kitchenPts.push( new THREE.Vector2 ( 60.7, 0 ) );
+	kitchenPts.push( new THREE.Vector2 ( 60.7, 78 ) );
 	kitchenPts.push( new THREE.Vector2 ( 0, 78 ) );
 	kitchenPts.push( new THREE.Vector2 ( 0, 0 ) );
-
+	
 	var kitchenShape = new THREE.Shape( kitchenPts );
 	var kitchenGeometry = new THREE.ShapeGeometry( kitchenShape );
-	var kitchenMaterial = new THREE.MeshLambertMaterial( {color: 0x000000, side: 
+	var kitchenMaterial = new THREE.MeshLambertMaterial( {map: textureKitchen, side: 
 	THREE.DoubleSide, transparent: false} );
 	kitchenPlane = new THREE.Mesh( kitchenGeometry, kitchenMaterial );
 	kitchenPlane.position.set( -45,.4,-48.5 );
@@ -223,18 +203,17 @@ function init()
 	// dining room floor plane
 	var diningPts = [];
 	diningPts.push( new THREE.Vector2 ( 0, 0 ) );
-	diningPts.push( new THREE.Vector2 ( 61, 0 ) );
-	diningPts.push( new THREE.Vector2 ( 61, 67.5 ) );
-	diningPts.push( new THREE.Vector2 ( 35, 85 ) );
-	diningPts.push( new THREE.Vector2 ( 0, 85 ) );
+	diningPts.push( new THREE.Vector2 ( 60.8, 0 ) );
+	diningPts.push( new THREE.Vector2 ( 60.8, 85.8 ) );
+	diningPts.push( new THREE.Vector2 ( 0, 85.8 ) );
 	diningPts.push( new THREE.Vector2 ( 0, 0 ) );
-
+	
 	var diningShape = new THREE.Shape( diningPts );
 	var diningGeometry = new THREE.ShapeGeometry( diningShape );
-	var diningMaterial = new THREE.MeshLambertMaterial( {color: 0x0000FF, side: 
-	THREE.DoubleSide, transparent: false} );
+	var diningMaterial = new THREE.MeshLambertMaterial( {map: textureDining, side: 
+	THREE.DoubleSide} );
 	diningPlane = new THREE.Mesh( diningGeometry, diningMaterial );
-	diningPlane.position.set( -45,.4,-133 );
+	diningPlane.position.set( -45,.4,-134 );
 	diningPlane.rotation.x = 1.57;
 	diningPlane.name = "Dining Room";
 	scene.add( diningPlane );
@@ -243,18 +222,19 @@ function init()
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Bedroom                ////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////
-	// bed room floor plane
+	// bedroom floor plane
 	var bedPts = [];
 	bedPts.push( new THREE.Vector2 ( 0, 0 ) );
 	bedPts.push( new THREE.Vector2 ( 91, 0 ) );
-	bedPts.push( new THREE.Vector2 ( 91, 67 ) );
-	bedPts.push( new THREE.Vector2 ( 0, 67 ) );
+	bedPts.push( new THREE.Vector2 ( 91, 67.5 ) );
+	bedPts.push( new THREE.Vector2 ( 0, 67.5 ) );
 	bedPts.push( new THREE.Vector2 ( 0, 0 ) );
 
+	
 	var bedShape = new THREE.Shape( bedPts );
 	var bedGeometry = new THREE.ShapeGeometry( bedShape );
-	var bedMaterial = new THREE.MeshLambertMaterial( {color: 0x00FF00, side: 
-	THREE.DoubleSide, transparent: false} );
+	var bedMaterial = new THREE.MeshLambertMaterial( {map: textureBed, side: 
+	THREE.DoubleSide} );
 	bedPlane = new THREE.Mesh( bedGeometry, bedMaterial );
 	bedPlane.position.set( 16,.4,-133.5 );
 	bedPlane.rotation.x = 1.57;
@@ -262,18 +242,53 @@ function init()
 	scene.add( bedPlane );
 	targetList.push(bedPlane);
 	
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       Hall 1                     ////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	// bedroom floor plane
+	var hall1Pts = [];
+	hall1Pts.push( new THREE.Vector2 ( 0, 0 ) );
+	hall1Pts.push( new THREE.Vector2 ( 31.5, 0 ) );
+	hall1Pts.push( new THREE.Vector2 ( 31.5, 29.1 ) );
+	hall1Pts.push( new THREE.Vector2 ( 0, 29.1 ) );
+	hall1Pts.push( new THREE.Vector2 ( 0, 0 ) );
+
+	
+	var hall1Shape = new THREE.Shape( hall1Pts );
+	var hall1Geometry = new THREE.ShapeGeometry( hall1Shape );
+	var hall1Material = new THREE.MeshLambertMaterial( {map: textureHall1, side: 
+	THREE.DoubleSide} );
+	hall1Plane = new THREE.Mesh( hall1Geometry, hall1Material );
+	hall1Plane.position.set( 15.5, .4, -67 );
+	hall1Plane.rotation.x = 1.57;
+	scene.add( hall1Plane );	
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       Hall 2                     ////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	// bedroom floor plane
+	var hall2Pts = [];
+	hall2Pts.push( new THREE.Vector2 ( 0, 0 ) );
+	hall2Pts.push( new THREE.Vector2 ( 32.5, 0 ) );
+	hall2Pts.push( new THREE.Vector2 ( 32.5, 24.5 ) );
+	hall2Pts.push( new THREE.Vector2 ( 0, 24.5 ) );
+	hall2Pts.push( new THREE.Vector2 ( 0, 0 ) );
+
+	
+	var hall2Shape = new THREE.Shape( hall2Pts );
+	var hall2Geometry = new THREE.ShapeGeometry( hall2Shape );
+	var hall2Material = new THREE.MeshLambertMaterial( {map: textureHall2, side: 
+	THREE.DoubleSide} );
+	hall2Plane = new THREE.Mesh( hall2Geometry, hall2Material );
+	hall2Plane.position.set( 15, .4, 5 );
+	hall2Plane.rotation.x = 1.57;
+	scene.add( hall2Plane );
+	
+	
 	// Make the topDown GUI
 	makeGui1();
 	
-	
-	
 
-
-	
-
-	
-	
-	
 	
 	// when the mouse moves, call the given function
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -290,11 +305,11 @@ function init()
     context1.fillText('Hello, world!', 0, 20);
     
 	// canvas contents will be used for a texture
-	texture1 = new THREE.Texture(canvas1) 
-	texture1.needsUpdate = true;
+	textureC = new THREE.Texture(canvas1) 
+	textureC.needsUpdate = true;
 	
 	
-	var spriteMaterial = new THREE.SpriteMaterial( { map: texture1, useScreenCoordinates: true} );
+	var spriteMaterial = new THREE.SpriteMaterial( { map: textureC, useScreenCoordinates: true} );
 	sprite1 = new THREE.Sprite( spriteMaterial );
 	sprite1.scale.set(200,100,1.0);
 	scene.add( sprite1 );	
@@ -324,7 +339,15 @@ function init()
 			};
 			this.intensity = 1; // light intensity
 			this.cameraView = "Top-down"; // defaults to "top-down" view
-			this.changeFloor = "Tile";	// change the texture of the floor
+			// change the textures of the floors
+			this.changeGround = "Grass";
+			this.changeFloorLiving = "Dark brown wood";	
+			this.changeFloorBed = "Dark brown wood";	
+			this.changeFloorBath = "Stone";	
+			this.changeFloorDining = "Dark brown wood";	
+			this.changeFloorKitchen = "Stone";	
+			this.changeFloorHall1 = "Stone";	
+			this.changeFloorHall2 = "Dark brown wood";	
 		};
 		
 		// Create the GUI frame
@@ -363,37 +386,230 @@ function init()
 				makeGui2();
 			}
 		});	
-			
-		folder2.add( guiConfig, 'changeFloor', ['Tile','Light brown wood','Stone','Dark brown wood','Light brown wood']).name("Living Room")
+		
+		// Change the ground texture	
+		folder1.add( guiConfig, 'changeGround', ['Grass']).name("Ground Texture")
 			.onChange( function() {
 				var tex; // texture to be loaded
-				if (guiConfig.changeFloor == 'Tile')
+				if (guiConfig.changeGround == 'Grass')
+				{
+					//tex = THREE.ImageUtils.loadTexture( "texture/grass.jpg" );
+				}		
+				// Repeat texture and wrap it
+				//setFloorTextureProperties(tex);
+				//plane.material.map = tex;
+		});
+		
+		
+		
+		
+		
+		// Change the living room floor texture	
+		folder2.add( guiConfig, 'changeFloorLiving', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Living Room")
+			.onChange( function() {
+				var tex; // texture to be loaded
+				if (guiConfig.changeFloorLiving == 'Tile')
 				{
 					tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
-				}
-				if (guiConfig.changeFloor == 'Brown wood')
+				} else if (guiConfig.changeFloorLiving == 'Brown wood')
 				{
 					tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
-				}
-				if (guiConfig.changeFloor == 'Stone')
+				} else if (guiConfig.changeFloorLiving == 'Stone')
 				{
 					tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
-				}
-				if (guiConfig.changeFloor == 'Dark brown wood')
+				} else if (guiConfig.changeFloorLiving == 'Dark brown wood')
 				{
 					tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
-				}
-				if (guiConfig.changeFloor == 'Light brown wood')
+				} else
 				{
 					tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
 				}
 				
 				// Repeat texture and wrap it
-				tex.wrapT = tex.wrapS = THREE.RepeatWrapping;
-				tex.repeat.set( 1 / 10, 1 / 10 );
-				tex.offset.set( 1, 1 );
+				setFloorTextureProperties(tex);
 				livingPlane.material.map = tex;
 		});
+		// Change the bedroom floor texture
+		folder2.add( guiConfig, 'changeFloorBed', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Bedroom")
+		.onChange( function() {
+			var tex; // texture to be loaded
+			if (guiConfig.changeFloorBed == 'Tile')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+			}
+			if (guiConfig.changeFloorBed == 'Brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+			}
+			if (guiConfig.changeFloorBed == 'Stone')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+			}
+			if (guiConfig.changeFloorBed == 'Dark brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+			}
+			if (guiConfig.changeFloorBed == 'Light brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+			}
+			
+			// Repeat texture and wrap it
+			setFloorTextureProperties(tex);
+			bedPlane.material.map = tex;
+	});
+	
+		// Change the bathroom floor texture
+		folder2.add( guiConfig, 'changeFloorBath', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Bathroom")
+		.onChange( function() {
+			var tex; // texture to be loaded
+			if (guiConfig.changeFloorBath == 'Tile')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+			}
+			if (guiConfig.changeFloorBath == 'Brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+			}
+			if (guiConfig.changeFloorBath == 'Stone')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+			}
+			if (guiConfig.changeFloorBath == 'Dark brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+			}
+			if (guiConfig.changeFloorBath == 'Light brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+			}
+			
+			// Repeat texture and wrap it
+			setFloorTextureProperties(tex);
+			bathroomPlane.material.map = tex;
+	});
+	
+		// Change the kitchen floor texture
+		folder2.add( guiConfig, 'changeFloorKitchen', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Kitchen")
+		.onChange( function() {
+			var tex; // texture to be loaded
+			if (guiConfig.changeFloorKitchen == 'Tile')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+			}
+			if (guiConfig.changeFloorKitchen == 'Brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+			}
+			if (guiConfig.changeFloorKitchen == 'Stone')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+			}
+			if (guiConfig.changeFloorKitchen == 'Dark brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+			}
+			if (guiConfig.changeFloorKitchen == 'Light brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+			}
+			
+			// Repeat texture and wrap it
+			setFloorTextureProperties(tex);
+			kitchenPlane.material.map = tex;
+	});
+	
+		// Change the dining room floor texture
+		folder2.add( guiConfig, 'changeFloorDining', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Dining Room")
+		.onChange( function() {
+			var tex; // texture to be loaded
+			if (guiConfig.changeFloorDining == 'Tile')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+			}
+			if (guiConfig.changeFloorDining == 'Brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+			}
+			if (guiConfig.changeFloorDining == 'Stone')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+			}
+			if (guiConfig.changeFloorDining == 'Dark brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+			}
+			if (guiConfig.changeFloorDining == 'Light brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+			}
+			
+			// Repeat texture and wrap it
+			setFloorTextureProperties(tex);
+			diningPlane.material.map = tex;
+	});
+	
+		// Change hall 1 floor texture
+		folder2.add( guiConfig, 'changeFloorHall1', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Hall 1")
+		.onChange( function() {
+			var tex; // texture to be loaded
+			if (guiConfig.changeFloorHall1 == 'Tile')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+			}
+			if (guiConfig.changeFloorHall1 == 'Brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+			}
+			if (guiConfig.changeFloorHall1 == 'Stone')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+			}
+			if (guiConfig.changeFloorHall1 == 'Dark brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+			}
+			if (guiConfig.changeFloorHall1 == 'Light brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+			}
+			
+			// Repeat texture and wrap it
+			setFloorTextureProperties(tex);
+			hall1Plane.material.map = tex;
+	});
+	
+		// Change hall 2 floor texture
+		folder2.add( guiConfig, 'changeFloorHall2', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Hall 2")
+		.onChange( function() {
+			var tex; // texture to be loaded
+			if (guiConfig.changeFloorHall2 == 'Tile')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+			}
+			if (guiConfig.changeFloorHall2 == 'Brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+			}
+			if (guiConfig.changeFloorHall2 == 'Stone')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+			}
+			if (guiConfig.changeFloorHall2 == 'Dark brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+			}
+			if (guiConfig.changeFloorHall2 == 'Light brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+			}
+			
+			// Repeat texture and wrap it
+			setFloorTextureProperties(tex);
+			hall2Plane.material.map = tex;
+	});
+	
+
 
 	// Slide bar used for changing light intensity - in lighting folder
 	var intens = folder1.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
@@ -492,6 +708,17 @@ function init()
 
 
 
+function setFloorTextureProperties(texture)
+{
+	console.log(texture);
+	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+	texture.repeat.set(20,20);
+	texture.needsUpdate = true;
+	texture.repeat.set( 1 / 10, 1 / 10 );
+	texture.offset.set( 1, 1 );
+}
+	
+	
 
 
 function onDocumentMouseDown( event ) 
@@ -618,7 +845,7 @@ function render() {
 			// store color of closest object (for later restoration)
 			INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 			// set a new color for closest object
-			INTERSECTED.material.color.setHex( 0xffff00 );
+			INTERSECTED.material.color.setHex( 0xff0000 );
 			
 			/*
 			// update text, if it has a "name" field.
@@ -634,12 +861,12 @@ function render() {
 				context1.fillRect( 2,2, width+4,20+4 );
 				context1.fillStyle = "rgba(0,0,0,1)"; // text color
 				context1.fillText( message, 4,20 );
-				texture1.needsUpdate = true;
+				textureC.needsUpdate = true;
 			}
 			else
 			{
 				context1.clearRect(0,0,300,300);
-				texture1.needsUpdate = true;
+				textureC.needsUpdate = true;
 			}
 			*/
 		}
@@ -655,7 +882,7 @@ function render() {
 		//     by setting current intersection object to "nothing"
 		INTERSECTED = null;
 		context1.clearRect(0,0,300,300);
-		texture1.needsUpdate = true;
+		textureC.needsUpdate = true;
 	}
 	controls.update( clock.getDelta() );
 	renderer.render( scene, camera );
