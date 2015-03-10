@@ -20,8 +20,7 @@ var canvas1, context1, texture1;
 var firstPerson = false; // toggle to see if in firstPerson view
 var guiDestroyFlag = false;
 var roofMaterial;
-var texture;
-var plane;
+var plane, kitchenPlane, bedPlane, bathroomPlane, diningPlane, livingPlane;
 init();
 animate();
 
@@ -33,6 +32,7 @@ function init()
 	renderer = new THREE.WebGLRenderer({ antialias:true });
 	renderer.setSize(RENDER_WIDTH,RENDER_HEIGHT);
 	renderer.domElement.style.backgroundColor = '#000000';
+	renderer.shadowMapEnabled = true;
 	document.body.appendChild( renderer.domElement );
 
 	container.appendChild(renderer.domElement);
@@ -98,6 +98,7 @@ function init()
     var loader = new THREE.OBJMTLLoader();
 	loader.load('model/house1.obj','model/house1.mtl',function(object){
 	    object.position.x = -10;
+		object.castShadow = true;
 		object.traverse(function(node){
 				if (node.material){
 					node.material.side = THREE.DoubleSide;					}
@@ -108,19 +109,16 @@ function init()
 
 	// Base ground plane
 	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 300, 300 );
-	texture = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+	var texture = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
  	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set(20,20);
 	texture.needsUpdate = true;
-	var planeMaterial = new THREE.MeshLambertMaterial( {map: texture, side: THREE.DoubleSide} );
-//	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0x545454, side: THREE.DoubleSide} );
+	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
 	plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	plane.position.set(50, 0, -30);
 	plane.receiveShadow = true;
 	plane.castShadow = false;
 	plane.rotation.x = 1.57;
-//	plane.material.map = THREE.ImageUtils.loadTexture( "texture/Light Brown Wood.jpg" );
-//	plane.material.map.needsUpdate = true;
 	scene.add( plane ); 
 	
 	
@@ -156,11 +154,15 @@ function init()
 	livingPts.push( new THREE.Vector2 ( 0, 96 ) );
 	livingPts.push( new THREE.Vector2 ( 0, 0 ) );
 
+	
+	
+	texture.repeat.set( 1 / 10, 1 / 10 );
+	texture.offset.set( 1, 1 );
 	var livingShape = new THREE.Shape( livingPts );
 	var livingGeometry = new THREE.ShapeGeometry( livingShape );
-	var livingMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: 
-	THREE.DoubleSide, transparent: false} );
-	var livingPlane = new THREE.Mesh( livingGeometry, livingMaterial );
+	var livingMaterial = new THREE.MeshLambertMaterial( {map: texture, side: 
+	THREE.DoubleSide} );
+	livingPlane = new THREE.Mesh( livingGeometry, livingMaterial );
 	livingPlane.position.set( 47,.4,-66.5 );
 	livingPlane.rotation.x = 1.57;
 	livingPlane.name = "Living Room";
@@ -184,7 +186,7 @@ function init()
 	var bathroomGeometry = new THREE.ShapeGeometry( bathroomShape );
 	var bathroomMaterial = new THREE.MeshLambertMaterial( {color: 0xff0000, side: 
 	THREE.DoubleSide, transparent: false} );
-	var bathroomPlane = new THREE.Mesh( bathroomGeometry, bathroomMaterial );
+	bathroomPlane = new THREE.Mesh( bathroomGeometry, bathroomMaterial );
 	bathroomPlane.position.set( 15.5,.4,-38 );
 	bathroomPlane.rotation.x = 1.57;
 	bathroomPlane.name = "Bathroom";
@@ -208,7 +210,7 @@ function init()
 	var kitchenGeometry = new THREE.ShapeGeometry( kitchenShape );
 	var kitchenMaterial = new THREE.MeshLambertMaterial( {color: 0x000000, side: 
 	THREE.DoubleSide, transparent: false} );
-	var kitchenPlane = new THREE.Mesh( kitchenGeometry, kitchenMaterial );
+	kitchenPlane = new THREE.Mesh( kitchenGeometry, kitchenMaterial );
 	kitchenPlane.position.set( -45,.4,-48.5 );
 	kitchenPlane.rotation.x = 1.57;
 	kitchenPlane.name = "Kitchen";
@@ -231,7 +233,7 @@ function init()
 	var diningGeometry = new THREE.ShapeGeometry( diningShape );
 	var diningMaterial = new THREE.MeshLambertMaterial( {color: 0x0000FF, side: 
 	THREE.DoubleSide, transparent: false} );
-	var diningPlane = new THREE.Mesh( diningGeometry, diningMaterial );
+	diningPlane = new THREE.Mesh( diningGeometry, diningMaterial );
 	diningPlane.position.set( -45,.4,-133 );
 	diningPlane.rotation.x = 1.57;
 	diningPlane.name = "Dining Room";
@@ -253,7 +255,7 @@ function init()
 	var bedGeometry = new THREE.ShapeGeometry( bedShape );
 	var bedMaterial = new THREE.MeshLambertMaterial( {color: 0x00FF00, side: 
 	THREE.DoubleSide, transparent: false} );
-	var bedPlane = new THREE.Mesh( bedGeometry, bedMaterial );
+	bedPlane = new THREE.Mesh( bedGeometry, bedMaterial );
 	bedPlane.position.set( 16,.4,-133.5 );
 	bedPlane.rotation.x = 1.57;
 	bedPlane.name = "Bedroom";
@@ -328,9 +330,12 @@ function init()
 		// Create the GUI frame
 		var  guiConfig = new guiConfigData(  );
 		gui = new dat.GUI( );
+		var folder1 = gui.addFolder("General");
+		var folder2 = gui.addFolder("Room Floors");
 		gui.open();
+		folder1.open();
 		// Drop down menu to pick the view of the camera
-		var view = gui.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View")
+		var view = folder1.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View")
 				.onChange( function() {
 			if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
 				roofMaterial.opacity = 0;
@@ -359,7 +364,7 @@ function init()
 			}
 		});	
 			
-		gui.add( guiConfig, 'changeFloor', ['Tile','Light brown wood','Stone','Dark brown wood','Light brown wood']).name("Change Floor")
+		folder2.add( guiConfig, 'changeFloor', ['Tile','Light brown wood','Stone','Dark brown wood','Light brown wood']).name("Living Room")
 			.onChange( function() {
 				var tex; // texture to be loaded
 				if (guiConfig.changeFloor == 'Tile')
@@ -383,16 +388,16 @@ function init()
 					tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
 				}
 				
-				
+				// Repeat texture and wrap it
 				tex.wrapT = tex.wrapS = THREE.RepeatWrapping;
-				tex.repeat.set(20,20);
-				tex.needsUpdate = true;
-				plane.material.map = tex;
+				tex.repeat.set( 1 / 10, 1 / 10 );
+				tex.offset.set( 1, 1 );
+				livingPlane.material.map = tex;
 		});
 
 	// Slide bar used for changing light intensity - in lighting folder
-	var intens = gui.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
-	gui.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
+	var intens = folder1.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
+	folder1.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
 		alert(
 		"---------------------------------------------\n" 
 		+ "Top-Down View Controls \n" 
