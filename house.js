@@ -22,6 +22,7 @@ var guiDestroyFlag = false;
 var roofMaterial;
 var plane, kitchenPlane, bedPlane, bathroomPlane, diningPlane, livingPlane;
 var textureBed, textureBath, textureKitchen, textureLiving, textureDining, textureHall1, textureHall2;
+var mirrorCube, mirrorCubeCamera; // for mirror material
 init();
 animate();
 
@@ -52,6 +53,23 @@ function init()
 	axes.position.y = 5;
 	scene.add( axes );
 	
+	// Skybox
+	var imagePrefix = "texture/skybox-";
+	var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
+	var imageSuffix = ".png";
+	var skyGeometry = new THREE.CubeGeometry( 600, 400, 600 );	
+	var materialArray = [];
+	for (var i = 0; i < 6; i++)
+		materialArray.push( new THREE.MeshBasicMaterial({
+			map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
+			side: THREE.BackSide
+		}));
+	var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
+	var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
+	scene.add( skyBox );
+	
+	
+	// Lights
 	var ambientLight = new THREE.AmbientLight( 0x222222 );
 	light = new THREE.DirectionalLight( 0xffffff, 1.0 );
 	light.position.set( 200, 400, 500 );
@@ -94,7 +112,7 @@ function init()
 	setFloorTextureProperties(textureHall2);
 	
 	// Base ground plane
-	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 300, 300 );
+	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 420, 300 );
 	
 	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
 	plane = new THREE.Mesh( planeGeometry, planeMaterial );
@@ -125,6 +143,17 @@ function init()
 	roof.rotation.x = 1.57;
 	roofMaterial.opacity = 0;
 	scene.add( roof );	
+	
+	var cubeGeom = new THREE.CubeGeometry(30, 30, 10, 3, 1, 1);
+	mirrorCubeCamera = new THREE.CubeCamera( 0.1, 1000, 512 );
+	// mirrorCubeCamera.renderTarget.minFilter = THREE.LinearMipMapLinearFilter;
+	scene.add( mirrorCubeCamera );
+	mirrorCubeCamera.visible = true;
+	var mirrorCubeMaterial = new THREE.MeshBasicMaterial( { envMap: mirrorCubeCamera.renderTarget } );
+	mirrorCube = new THREE.Mesh( cubeGeom, mirrorCubeMaterial );
+	mirrorCube.position.set(0,10,0);
+	mirrorCubeCamera.position = mirrorCube.position;
+	scene.add(mirrorCube);	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Living Room             ///////////////////////
@@ -813,11 +842,16 @@ function onDocumentMouseMove( event )
 function animate()
 {
 	requestAnimationFrame(animate);
+	
 	render();
+		mirrorCube.visible = false;
+	mirrorCubeCamera.updateCubeMap( renderer, scene );
+	mirrorCube.visible = true;
 	renderer.render(scene,camera);
 }		
 
 function render() {
+
 		// create a Ray with origin at the mouse position
 	//   and direction into the scene (camera direction)
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
