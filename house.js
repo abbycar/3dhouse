@@ -58,7 +58,7 @@ function init()
 	var imagePrefix = "texture/skybox-";
 	var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
 	var imageSuffix = ".png";
-	var skyGeometry = new THREE.CubeGeometry( 600, 400, 600 );	
+	var skyGeometry = new THREE.BoxGeometry( 600, 400, 600 );	
 	var materialArray = [];
 	for (var i = 0; i < 6; i++)
 		materialArray.push( new THREE.MeshBasicMaterial({
@@ -835,6 +835,14 @@ function toString(v) { return "[ " + v.x + ", " + v.y + ", " + v.z + " ]"; }
 
 function onDocumentMouseMove( event ) 
 {
+	// Lock first person controls when mouse is the upper right corner of the screen
+	// so that the gui can be accessed
+	if(mouse.x > .65 && mouse.y > .5) {
+		controls.activeLook = false;
+	} else {
+		controls.activeLook = true;
+	}
+	
 	// the following line would stop any other event handler from firing
 	// (such as the mouse's TrackballControls)
 	//event.preventDefault();
@@ -847,6 +855,14 @@ function onDocumentMouseMove( event )
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 	
 }
+
+function detectCollision() {
+	var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+	
+	
+}
+
+
 
 
 function animate()
