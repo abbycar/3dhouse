@@ -112,7 +112,7 @@ function init()
 	setFloorTextureProperties(textureHall2);
 	
 	// Base ground plane
-	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 420, 300 );
+	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 420 );
 	
 	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
 	plane = new THREE.Mesh( planeGeometry, planeMaterial );
@@ -144,15 +144,16 @@ function init()
 	roofMaterial.opacity = 0;
 	scene.add( roof );	
 	
-	var cubeGeom = new THREE.CubeGeometry(30, 30, 10, 3, 1, 1);
-	mirrorCubeCamera = new THREE.CubeCamera( 0.1, 1000, 512 );
-	// mirrorCubeCamera.renderTarget.minFilter = THREE.LinearMipMapLinearFilter;
+	// Bathroom mirror
+	var cubeGeom = new THREE.PlaneBufferGeometry(6.5, 8.9)
+	mirrorCubeCamera = new THREE.CubeCamera( .1, 1000, 2048 );
 	scene.add( mirrorCubeCamera );
-	mirrorCubeCamera.visible = true;
 	var mirrorCubeMaterial = new THREE.MeshBasicMaterial( { envMap: mirrorCubeCamera.renderTarget } );
 	mirrorCube = new THREE.Mesh( cubeGeom, mirrorCubeMaterial );
-	mirrorCube.position.set(0,10,0);
-	mirrorCubeCamera.position = mirrorCube.position;
+	mirrorCube.position.set(37.5,17,4.65);
+	mirrorCube.rotation.y = 3.14;
+	mirrorCubeCamera.position = mirrorCube.position
+	mirrorCubeCamera.position.y = 10;
 	scene.add(mirrorCube);	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
