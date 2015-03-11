@@ -22,7 +22,8 @@ var guiDestroyFlag = false;
 var roofMaterial;
 var plane, kitchenPlane, bedPlane, bathroomPlane, diningPlane, livingPlane;
 var textureBed, textureBath, textureKitchen, textureLiving, textureDining, textureHall1, textureHall2;
-var mirrorCube, mirrorCubeCamera; // for mirror material
+var bathMirCube, bathMirCubeCamera; // for mirror material
+var bedMirCube, bedMirCubeCamera; // for mirror material
 init();
 animate();
 
@@ -144,18 +145,6 @@ function init()
 	roofMaterial.opacity = 0;
 	scene.add( roof );	
 	
-	// Bathroom mirror
-	var cubeGeom = new THREE.PlaneBufferGeometry(6.5, 8.9)
-	mirrorCubeCamera = new THREE.CubeCamera( .1, 1000, 2048 );
-	scene.add( mirrorCubeCamera );
-	var mirrorCubeMaterial = new THREE.MeshBasicMaterial( { envMap: mirrorCubeCamera.renderTarget } );
-	mirrorCube = new THREE.Mesh( cubeGeom, mirrorCubeMaterial );
-	mirrorCube.position.set(37.5,17,4.65);
-	mirrorCube.rotation.y = 3.14;
-	mirrorCubeCamera.position = mirrorCube.position
-	mirrorCubeCamera.position.y = 10;
-	scene.add(mirrorCube);	
-	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Living Room             ///////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -203,6 +192,19 @@ function init()
 	bathroomPlane.name = "Bathroom";
 	scene.add( bathroomPlane );	
 	targetList.push(bathroomPlane);
+	
+	// Bathroom mirror
+	var bathMirGeom = new THREE.PlaneBufferGeometry(6.5, 8.9)
+	bathMirCubeCamera = new THREE.CubeCamera( .1, 200, 2048 );
+	scene.add( bathMirCubeCamera );
+	var bathMirCubeMat = new THREE.MeshBasicMaterial( { envMap: bathMirCubeCamera.renderTarget } );
+	bathMirCube = new THREE.Mesh( bathMirGeom, bathMirCubeMat );
+	bathMirCube.position.set(37.5,17,4.65);
+	bathMirCube.rotation.y = 3.14;
+	bathMirCubeCamera.position.x = 37.5;
+	bathMirCubeCamera.position.y = 17;
+	bathMirCubeCamera.position.z = 4.65;
+	scene.add(bathMirCube);	
 	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -271,6 +273,19 @@ function init()
 	bedPlane.name = "Bedroom";
 	scene.add( bedPlane );
 	targetList.push(bedPlane);
+	
+	// Bedroom mirror
+	var bedMirGeom = new THREE.PlaneBufferGeometry(12, 19)
+	bedMirCubeCamera = new THREE.CubeCamera( .1, 400, 2048 );
+	scene.add( bedMirCubeCamera );
+	var bedMirCubeMat = new THREE.MeshBasicMaterial( { envMap: bedMirCubeCamera.renderTarget } );
+	bedMirCube = new THREE.Mesh( bedMirGeom, bedMirCubeMat );
+	bedMirCube.position.set(52,13,-67);
+	bedMirCube.rotation.y = 3.14;
+	bedMirCubeCamera.position.y = 13;
+	bedMirCubeCamera.position.x = 52;
+	bedMirCubeCamera.position.z = -67;
+	scene.add(bedMirCube);	
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Hall 1                     ////////////////////
@@ -398,7 +413,6 @@ function init()
 				camera.position.x = 20;
 				camera.position.z = -20;
 				firstPerson = false;
-				console.log("firstperson = " + firstPerson);
 			} else if ( guiConfig.cameraView == 'First-person') { 
 				// camera position for first person point of view
 				roofMaterial.opacity = 1;
@@ -412,7 +426,6 @@ function init()
 				camera.position.y = 17;
 				camera.position.x = 90;
 				firstPerson = true;
-				console.log("firstperson = " + firstPerson);
 				makeGui2();
 			}
 		});	
@@ -694,7 +707,6 @@ function init()
 				camera.position.x = 20;
 				camera.position.z = -20;
 				firstPerson = false;
-				console.log("firstperson = " + firstPerson);
 				guiDestroyFlag = true;
 				makeGui1();
 			} else if ( guiConfig.cameraView == 'First-person') { 
@@ -710,7 +722,6 @@ function init()
 				camera.position.x = 90;
 				camera.position.z = 60;
 				firstPerson = true;
-				console.log("firstperson = " + firstPerson);
 			}
 		});
 		var intens = gui.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
@@ -740,7 +751,6 @@ function init()
 
 function setFloorTextureProperties(texture)
 {
-	console.log(texture);
 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set(20,20);
 	texture.needsUpdate = true;
@@ -780,7 +790,6 @@ function onDocumentMouseDown( event )
 			controls.lookVertical = false;
 			// in firstPerson
 			firstPerson = true;
-			console.log("firstperson = " + firstPerson);
 			makeGui2();
 			
 			if ( intersects[ 0 ].object.name == "Living Room") {
@@ -845,9 +854,12 @@ function animate()
 	requestAnimationFrame(animate);
 	
 	render();
-		mirrorCube.visible = false;
-	mirrorCubeCamera.updateCubeMap( renderer, scene );
-	mirrorCube.visible = true;
+	bathMirCube.visible = false;
+	bathMirCubeCamera.updateCubeMap( renderer, scene );
+	bathMirCube.visible = true;
+	bedMirCube.visible = false;
+	bedMirCubeCamera.updateCubeMap( renderer, scene );
+	bedMirCube.visible = true;
 	renderer.render(scene,camera);
 }		
 
