@@ -22,7 +22,7 @@ var firstPerson = false; // toggle to see if in firstPerson view
 var guiDestroyFlag = false;
 var roofMaterial;
 var plane, kitchenPlane, bedPlane, bathroomPlane, diningPlane, livingPlane;
-var textureBed, textureBath, textureKitchen, textureLiving, textureDining, textureHall1, textureHall2;
+var textureBed, textureBath, textureKitchen, textureLiving, textureDining, textureHall1, textureHall2, textureGround;
 var bathMirCube, bathMirCubeCamera; // for mirror material
 var bedMirCube, bedMirCubeCamera; // for mirror material
 init();
@@ -72,16 +72,20 @@ function init()
 	
 	
 	// Lights
-	var ambientLight = new THREE.AmbientLight( 0x222222 );
+	var ambientLight = new THREE.AmbientLight( 0x554433);
 	light = new THREE.DirectionalLight( 0xffffff, 1.0 );
 	light.position.set( 200, 400, 500 );
 	
-	var light2 = new THREE.DirectionalLight( 0xffffff, 1.0 );
+	var light2 = new THREE.DirectionalLight( 0xffffff, 0.8 );
 	light2.position.set( -400, 200, -300 );
+
+	var light3 = new THREE.DirectionalLight( 0xb99bba, 0.7 );
+	light3.position.set( 200, 100, -300);
 
 	scene.add(ambientLight);
 	scene.add(light);
 	scene.add(light2);
+	scene.add(light3);
 
 	houseContainer = new THREE.Group();
 
@@ -114,21 +118,22 @@ function init()
 	setFloorTextureProperties(textureBed);
 	textureBath = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" ); 
 	setFloorTextureProperties(textureBath);
-	textureKitchen = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" ); 
+	textureKitchen = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" ); 
 	setFloorTextureProperties(textureKitchen);
-	textureLiving = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" ); 
+	textureLiving = THREE.ImageUtils.loadTexture( "texture/floor.jpg" ); 
 	setFloorTextureProperties(textureLiving);
-	textureDining = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" ); 
+	textureDining = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" ); 
 	setFloorTextureProperties(textureDining);
 	textureHall1 = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" ); 
 	setFloorTextureProperties(textureHall1);
-	textureHall2 = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+	textureHall2 = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
 	setFloorTextureProperties(textureHall2);
+	textureGround = THREE.ImageUtils.loadTexture( "texture/grass.png" );
+	setGroundTextureProperties(textureGround);
 	
 	// Base ground plane
 	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 420 );
-	
-	var planeMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
+	var planeMaterial = new THREE.MeshLambertMaterial( {map: textureGround, side: THREE.DoubleSide} );
 	plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	plane.position.set(50, 0, -30);
 	plane.receiveShadow = true;
@@ -399,13 +404,13 @@ function init()
 			this.cameraView = "Top-down"; // defaults to "top-down" view
 			// change the textures of the floors
 			this.changeGround = "Grass";
-			this.changeFloorLiving = "Dark brown wood";	
+			this.changeFloorLiving = "Tile";	
 			this.changeFloorBed = "Dark brown wood";	
 			this.changeFloorBath = "Stone";	
-			this.changeFloorDining = "Dark brown wood";	
-			this.changeFloorKitchen = "Stone";	
+			this.changeFloorDining = "Light brown wood";	
+			this.changeFloorKitchen = "Brown wood";	
 			this.changeFloorHall1 = "Stone";	
-			this.changeFloorHall2 = "Dark brown wood";	
+			this.changeFloorHall2 = "Brown wood";	
 		};
 		
 		// Create the GUI frame
@@ -444,21 +449,31 @@ function init()
 		});	
 		
 		// Change the ground texture	
-		folder1.add( guiConfig, 'changeGround', ['Grass']).name("Ground Texture")
+		folder1.add( guiConfig, 'changeGround', ['Grass','Dirt','Sand','Rock','ToadStone']).name("Ground Texture")
 			.onChange( function() {
 				var tex; // texture to be loaded
 				if (guiConfig.changeGround == 'Grass')
 				{
-					//tex = THREE.ImageUtils.loadTexture( "texture/grass.jpg" );
-				}		
+					tex = THREE.ImageUtils.loadTexture( "texture/grass.png" );
+				} else if (guiConfig.changeGround == 'Dirt')
+				{
+					tex = THREE.ImageUtils.loadTexture( "texture/dirt.jpg" );
+				} else if (guiConfig.changeGround == 'Sand')
+				{
+					tex = THREE.ImageUtils.loadTexture( "texture/sand.jpg" );
+				} else if (guiConfig.changeGround == 'Rock')
+				{
+					tex = THREE.ImageUtils.loadTexture( "texture/rock.png" );
+				} else if (guiConfig.changeGround == 'ToadStone')
+				{
+					tex = THREE.ImageUtils.loadTexture( "texture/ToadStone.png" );
+				}	
 				// Repeat texture and wrap it
-				//setFloorTextureProperties(tex);
-				//plane.material.map = tex;
+				setGroundTextureProperties(tex);
+				plane.material.map = tex;
 		});
 		
-		
-		
-		
+			
 		
 		// Change the living room floor texture	
 		folder2.add( guiConfig, 'changeFloorLiving', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Living Room")
@@ -768,6 +783,14 @@ function setFloorTextureProperties(texture)
 	texture.repeat.set(20,20);
 	texture.needsUpdate = true;
 	texture.repeat.set( 1 / 10, 1 / 10 );
+	texture.offset.set( 1, 1 );
+}
+
+function setGroundTextureProperties(texture)
+{
+	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+	texture.repeat.set(15,15);
+	texture.needsUpdate = true;
 	texture.offset.set( 1, 1 );
 }
 	
