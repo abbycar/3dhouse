@@ -874,7 +874,6 @@ function detectCollision() {
 	var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize());
 	var intersects = ray.intersectObjects( collisionList );
 	if ( intersects.length > 0 && intersects[0].distance < 5) {
-		console.log("hitttttttttttttttttt");
 		controls.moveForward = false;
 		controls.moveRight = false;
 		controls.moveLeft = false;
