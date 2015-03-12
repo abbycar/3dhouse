@@ -15,6 +15,7 @@ var light;
 var gui;
 var mouse = { x: 0, y: 0 }, INTERSECTED;
 var targetList = [];
+var collisionList = [];
 var clock = new THREE.Clock();
 var canvas1, context1, textureC;
 var firstPerson = false; // toggle to see if in firstPerson view
@@ -96,6 +97,18 @@ function init()
 		houseContainer.add(object);
 		scene.add(houseContainer);
 	});
+	
+	// Create collision wall right kitchen
+	material1 = new THREE.MeshPhongMaterial( {transparent: true} );
+	geometry1 = new THREE.PlaneBufferGeometry( 115,10 );
+	wall1 = new THREE.Mesh( geometry1, material1 );
+	wall1.position.set(15, 17, 28);
+	wall1.name ='wall1';
+	material1.opacity = 0;
+	scene.add( wall1 );
+	collisionList.push(wall1);
+	
+	
 	// Initialize floor textures
 	textureBed = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );  
 	setFloorTextureProperties(textureBed);
@@ -857,9 +870,16 @@ function onDocumentMouseMove( event )
 }
 
 function detectCollision() {
-	var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
-	
-	
+	var vector = new THREE.Vector3( 1, camera.position.y, 1 );
+	var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize());
+	var intersects = ray.intersectObjects( collisionList );
+	if ( intersects.length > 0 && intersects[0].distance < 5) {
+		console.log("hitttttttttttttttttt");
+		controls.moveForward = false;
+		controls.moveRight = false;
+		controls.moveLeft = false;
+	}
+
 }
 
 
@@ -880,7 +900,7 @@ function animate()
 }		
 
 function render() {
-
+	detectCollision();
 		// create a Ray with origin at the mouse position
 	//   and direction into the scene (camera direction)
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
