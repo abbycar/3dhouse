@@ -91,6 +91,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	};
 
+	
 	this.onKeyDown = function ( event ) {
 
 		//event.preventDefault();
@@ -113,6 +114,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 			case 70: /*F*/ this.moveDown = true; break;
 
 		}
+		
 
 	};
 
