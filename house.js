@@ -1,12 +1,12 @@
 //============================================================================
 // Name        : house.js
 // Author      : Abby Carey & Tina Pi
-// Assignment  : 3D House Explorer - Code Drop 1
+// Assignment  : 3D House Explorer - Code Drop 2
 // Description : This is a 3D house for you to explore! In Progress
 //============================================================================
 
 
-
+// Global variables
 var RENDER_WIDTH = window.innerWidth, RENDER_HEIGHT = window.innerHeight;
 var controls,renderer,scene,camera, container;
 var ground,houseContainer;
@@ -14,17 +14,20 @@ var groundMaterial,texture_update;
 var light;
 var gui;
 var mouse = { x: 0, y: 0 }, INTERSECTED;
-var targetList = [];
-var collisionList = [];
-var clock = new THREE.Clock();
+var targetList = []; 				// list of objects to highlight
+var collisionList = []; 			// list of objects to collide with
+var clock = new THREE.Clock();		// clock used for firstPerson controls
 var canvas1, context1, textureC;
-var firstPerson = false; // toggle to see if in firstPerson view
-var guiDestroyFlag = false;
+var firstPerson = false; 			// toggle to see if in firstPerson view
+var guiDestroyFlag = false; 		// toggle used to indicate whether the current GUI needs to be destroyed
 var roofMaterial;
+// floor planes
 var plane, kitchenPlane, bedPlane, bathroomPlane, diningPlane, livingPlane;
+// floor textures
 var textureBed, textureBath, textureKitchen, textureLiving, textureDining, textureHall1, textureHall2, textureGround;
-var bathMirCube, bathMirCubeCamera; // for mirror material
-var bedMirCube, bedMirCubeCamera; // for mirror material
+// for mirror material
+var bathMirCube, bathMirCubeCamera; 
+var bedMirCube, bedMirCubeCamera; 
 init();
 animate();
 
@@ -41,21 +44,19 @@ function init()
 
 	container.appendChild(renderer.domElement);
 	scene = new THREE.Scene();
-	// add camera to the scene
 	
+	// add camera to the scene
 	camera = new THREE.PerspectiveCamera(45, RENDER_WIDTH / RENDER_HEIGHT, 0.1, 10000);
 	camera.position.y = 240;
 	camera.position.x = 20;
 	camera.position.z = -20;
 	scene.add(camera);
+	// set default controller to orbit
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
 	// add window resize controller
 	window.addEventListener( 'resize', onWindowResize, false );
-	var axes = new THREE.AxisHelper(100);
-	axes.position.y = 5;
-	scene.add( axes );
 	
-	// Skybox
+	// Skybox: Code modifed version of https://stemkoski.github.io/Three.js/Skybox.html
 	var imagePrefix = "texture/skybox-";
 	var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
 	var imageSuffix = ".png";
@@ -71,7 +72,7 @@ function init()
 	scene.add( skyBox );
 	
 	
-	// Lights
+	// add lights to the scene
 	var ambientLight = new THREE.AmbientLight( 0x554433);
 	light = new THREE.DirectionalLight( 0xffffff, 1.0 );
 	light.position.set( 200, 400, 500 );
@@ -110,6 +111,7 @@ function init()
 	wall1.name ='wall1';
 	material1.opacity = 0;
 	scene.add( wall1 );
+	// add wall to collidable objects list
 	collisionList.push(wall1);
 	
 	
@@ -131,8 +133,14 @@ function init()
 	textureGround = THREE.ImageUtils.loadTexture( "texture/grass.png" );
 	setGroundTextureProperties(textureGround);
 	
-	// Base ground plane
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////       Roof and Ground         ///////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+	
+	// Ground plane
 	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 420 );
+	//var planeMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
 	var planeMaterial = new THREE.MeshLambertMaterial( {map: textureGround, side: THREE.DoubleSide} );
 	plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	plane.position.set(50, 0, -30);
@@ -141,11 +149,9 @@ function init()
 	plane.rotation.x = 1.57;
 	scene.add( plane ); 
 	
-	
-	
 	// Roof plane
 	var roofPts = [];
-	roofPts.push( new THREE.Vector2 ( 0, 0 ) );
+	roofPts.push( new THREE.Vector2 ( 0, 0 ) ); 
 	roofPts.push( new THREE.Vector2 ( 151, 0 ) );
 	roofPts.push( new THREE.Vector2 ( 151, 189 ) );
 	roofPts.push( new THREE.Vector2 ( 117, 189 ) );
@@ -181,6 +187,7 @@ function init()
 	var livingMaterial = new THREE.MeshLambertMaterial( {map: textureLiving, side: 
 	THREE.DoubleSide} );
 	livingPlane = new THREE.Mesh( livingGeometry, livingMaterial );
+	// Set position and rotate to be flat against ground
 	livingPlane.position.set( 47,.4,-66.7 );
 	livingPlane.rotation.x = 1.57;
 	livingPlane.name = "Living Room";
@@ -205,20 +212,25 @@ function init()
 	var bathroomMaterial = new THREE.MeshLambertMaterial( {map: textureBath, side: 
 	THREE.DoubleSide, transparent: false} );
 	bathroomPlane = new THREE.Mesh( bathroomGeometry, bathroomMaterial );
+	// Set position and rotate to be flat against ground
 	bathroomPlane.position.set( 15.5,.4,-38 );
 	bathroomPlane.rotation.x = 1.57;
 	bathroomPlane.name = "Bathroom";
 	scene.add( bathroomPlane );	
+	// Is highlightable
 	targetList.push(bathroomPlane);
 	
 	// Bathroom mirror
 	var bathMirGeom = new THREE.PlaneBufferGeometry(6.5, 8.9)
 	bathMirCubeCamera = new THREE.CubeCamera( .1, 200, 2048 );
 	scene.add( bathMirCubeCamera );
+	// Map the mirrorcamera to the plane
 	var bathMirCubeMat = new THREE.MeshBasicMaterial( { envMap: bathMirCubeCamera.renderTarget } );
 	bathMirCube = new THREE.Mesh( bathMirGeom, bathMirCubeMat );
+	// Set position and rotate to be flat against wall
 	bathMirCube.position.set(37.5,17,4.65);
 	bathMirCube.rotation.y = 3.14;
+	// Position cube camera to be acurate reflection
 	bathMirCubeCamera.position.x = 37.5;
 	bathMirCubeCamera.position.y = 17;
 	bathMirCubeCamera.position.z = 4.65;
@@ -241,10 +253,12 @@ function init()
 	var kitchenMaterial = new THREE.MeshLambertMaterial( {map: textureKitchen, side: 
 	THREE.DoubleSide, transparent: false} );
 	kitchenPlane = new THREE.Mesh( kitchenGeometry, kitchenMaterial );
+	// Set position and rotate to be flat against ground
 	kitchenPlane.position.set( -45,.4,-48.5 );
 	kitchenPlane.rotation.x = 1.57;
 	kitchenPlane.name = "Kitchen";
 	scene.add( kitchenPlane );	
+	// Is highlightable
 	targetList.push(kitchenPlane);
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -263,10 +277,12 @@ function init()
 	var diningMaterial = new THREE.MeshLambertMaterial( {map: textureDining, side: 
 	THREE.DoubleSide} );
 	diningPlane = new THREE.Mesh( diningGeometry, diningMaterial );
+	// Set position and rotate to be flat against ground
 	diningPlane.position.set( -45,.4,-134 );
 	diningPlane.rotation.x = 1.57;
 	diningPlane.name = "Dining Room";
 	scene.add( diningPlane );
+	// Is highlightable
 	targetList.push(diningPlane);
 	
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -286,10 +302,12 @@ function init()
 	var bedMaterial = new THREE.MeshLambertMaterial( {map: textureBed, side: 
 	THREE.DoubleSide} );
 	bedPlane = new THREE.Mesh( bedGeometry, bedMaterial );
+	// Set position and rotate to be flat against ground
 	bedPlane.position.set( 16,.4,-133.5 );
 	bedPlane.rotation.x = 1.57;
 	bedPlane.name = "Bedroom";
 	scene.add( bedPlane );
+	// Is highlightable
 	targetList.push(bedPlane);
 	
 	// Bedroom mirror
@@ -298,8 +316,10 @@ function init()
 	scene.add( bedMirCubeCamera );
 	var bedMirCubeMat = new THREE.MeshBasicMaterial( { envMap: bedMirCubeCamera.renderTarget } );
 	bedMirCube = new THREE.Mesh( bedMirGeom, bedMirCubeMat );
+	// Set position and rotate to be flat against wall
 	bedMirCube.position.set(52,13,-67);
 	bedMirCube.rotation.y = 3.14;
+	// Set position of cube camera for acurate reflection
 	bedMirCubeCamera.position.y = 13;
 	bedMirCubeCamera.position.x = 52;
 	bedMirCubeCamera.position.z = -67;
@@ -308,7 +328,6 @@ function init()
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Hall 1                     ////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////
-	// bedroom floor plane
 	var hall1Pts = [];
 	hall1Pts.push( new THREE.Vector2 ( 0, 0 ) );
 	hall1Pts.push( new THREE.Vector2 ( 31.5, 0 ) );
@@ -322,6 +341,7 @@ function init()
 	var hall1Material = new THREE.MeshLambertMaterial( {map: textureHall1, side: 
 	THREE.DoubleSide} );
 	hall1Plane = new THREE.Mesh( hall1Geometry, hall1Material );
+	// Set position and rotate to be flat against ground
 	hall1Plane.position.set( 15.5, .4, -67 );
 	hall1Plane.rotation.x = 1.57;
 	scene.add( hall1Plane );	
@@ -329,7 +349,6 @@ function init()
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       Hall 2                     ////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////
-	// bedroom floor plane
 	var hall2Pts = [];
 	hall2Pts.push( new THREE.Vector2 ( 0, 0 ) );
 	hall2Pts.push( new THREE.Vector2 ( 32.5, 0 ) );
@@ -343,6 +362,7 @@ function init()
 	var hall2Material = new THREE.MeshLambertMaterial( {map: textureHall2, side: 
 	THREE.DoubleSide} );
 	hall2Plane = new THREE.Mesh( hall2Geometry, hall2Material );
+	// Set position and rotate to be flat against ground
 	hall2Plane.position.set( 15, .4, 5 );
 	hall2Plane.rotation.x = 1.57;
 	scene.add( hall2Plane );
@@ -362,10 +382,6 @@ function init()
 
 	// create a canvas element
 	canvas1 = document.createElement('canvas');
-	context1 = canvas1.getContext('2d');
-	context1.font = "Bold 20px Arial";
-	context1.fillStyle = "rgba(0,0,0,0.95)";
-    context1.fillText('Hello, world!', 0, 20);
     
 	// canvas contents will be used for a texture
 	textureC = new THREE.Texture(canvas1) 
@@ -387,324 +403,321 @@ function init()
 }
 
 
-	/////////////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////       Top-down GUI             //////////////////////
-	/////////////////////////////////////////////////////////////////////////////////////
-	function makeGui1() {
-		// Hold default values for the GUI
-		if(guiDestroyFlag == true){
-			gui.destroy();
-			guiDestroyFlag = false;
+/////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////       Top-down GUI             //////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+function makeGui1() {
+	// Hold default values for the GUI
+	if(guiDestroyFlag == true){
+		gui.destroy();
+		guiDestroyFlag = false;
+	}
+	
+	var guiConfigData = function() {
+		this.showControls = function() {
+		};
+		this.intensity = 1; // light intensity
+		this.cameraView = "Top-down"; // defaults to "top-down" view
+		// change the textures of the floors
+		this.changeGround = "Grass";
+		this.changeFloorLiving = "Tile";	
+		this.changeFloorBed = "Dark brown wood";	
+		this.changeFloorBath = "Stone";	
+		this.changeFloorDining = "Light brown wood";	
+		this.changeFloorKitchen = "Brown wood";	
+		this.changeFloorHall1 = "Stone";	
+		this.changeFloorHall2 = "Brown wood";	
+	};
+	
+	// Create the GUI frame
+	var  guiConfig = new guiConfigData(  );
+	gui = new dat.GUI( );
+	var folder1 = gui.addFolder("General");
+	var folder2 = gui.addFolder("Room Floors");
+	gui.open();
+	folder1.open();
+	// Drop down menu to pick the view of the camera
+	var view = folder1.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View")
+			.onChange( function() {
+		if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
+			roofMaterial.opacity = 0;
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			// topdown position
+			camera.position.y = 240;
+			camera.position.x = 20;
+			camera.position.z = -20;
+			firstPerson = false;
+		} else if ( guiConfig.cameraView == 'First-person') { 
+			// camera position for first person point of view
+			roofMaterial.opacity = 1;
+			controls = new THREE.FirstPersonControls(camera, renderer.domElement);
+			controls.movementSpeed = 20;
+			controls.lookSpeed = 0.05;
+			controls.noFly = true;
+			controls.lookVertical = false;
+			controls.lon = 270;
+			camera.position.z = 60;
+			camera.position.y = 17;
+			camera.position.x = 90;
+			firstPerson = true;
+			makeGui2();
+		}
+	});	
+
+	// Change the ground texture	
+	folder1.add( guiConfig, 'changeGround', ['Grass','Dirt','Sand','Rock','ToadStone']).name("Ground Texture")
+		.onChange( function() {
+			var tex; // texture to be loaded
+			if (guiConfig.changeGround == 'Grass')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/grass.png" );
+			} else if (guiConfig.changeGround == 'Dirt')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/dirt.jpg" );
+			} else if (guiConfig.changeGround == 'Sand')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/sand.jpg" );
+			} else if (guiConfig.changeGround == 'Rock')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/rock.png" );
+			} else if (guiConfig.changeGround == 'ToadStone')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/ToadStone.png" );
+			}	
+			// Repeat texture and wrap it
+			setGroundTextureProperties(tex);
+			plane.material.map = tex;
+	});
+		
+	
+	// Change the living room floor texture	
+	folder2.add( guiConfig, 'changeFloorLiving', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Living Room")
+		.onChange( function() {
+			var tex; // texture to be loaded
+			if (guiConfig.changeFloorLiving == 'Tile')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+			} else if (guiConfig.changeFloorLiving == 'Brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+			} else if (guiConfig.changeFloorLiving == 'Stone')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+			} else if (guiConfig.changeFloorLiving == 'Dark brown wood')
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+			} else
+			{
+				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+			}
+			
+			// Repeat texture and wrap it
+			setFloorTextureProperties(tex);
+			livingPlane.material.map = tex;
+	});
+	// Change the bedroom floor texture
+	folder2.add( guiConfig, 'changeFloorBed', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Bedroom")
+	.onChange( function() {
+		var tex; // texture to be loaded
+		if (guiConfig.changeFloorBed == 'Tile')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+		}
+		if (guiConfig.changeFloorBed == 'Brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+		}
+		if (guiConfig.changeFloorBed == 'Stone')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+		}
+		if (guiConfig.changeFloorBed == 'Dark brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+		}
+		if (guiConfig.changeFloorBed == 'Light brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
 		}
 		
-		var guiConfigData = function() {
-			this.showControls = function() {
-			};
-			this.intensity = 1; // light intensity
-			this.cameraView = "Top-down"; // defaults to "top-down" view
-			// change the textures of the floors
-			this.changeGround = "Grass";
-			this.changeFloorLiving = "Tile";	
-			this.changeFloorBed = "Dark brown wood";	
-			this.changeFloorBath = "Stone";	
-			this.changeFloorDining = "Light brown wood";	
-			this.changeFloorKitchen = "Brown wood";	
-			this.changeFloorHall1 = "Stone";	
-			this.changeFloorHall2 = "Brown wood";	
-		};
-		
-		// Create the GUI frame
-		var  guiConfig = new guiConfigData(  );
-		gui = new dat.GUI( );
-		var folder1 = gui.addFolder("General");
-		var folder2 = gui.addFolder("Room Floors");
-		gui.open();
-		folder1.open();
-		// Drop down menu to pick the view of the camera
-		var view = folder1.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View")
-				.onChange( function() {
-			if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
-				roofMaterial.opacity = 0;
-				controls = new THREE.OrbitControls(camera, renderer.domElement);
-				// topdown position
-				camera.position.y = 240;
-				camera.position.x = 20;
-				camera.position.z = -20;
-				firstPerson = false;
-			} else if ( guiConfig.cameraView == 'First-person') { 
-				// camera position for first person point of view
-				roofMaterial.opacity = 1;
-				controls = new THREE.FirstPersonControls(camera, renderer.domElement);
-				controls.movementSpeed = 20;
-				controls.lookSpeed = 0.05;
-				controls.noFly = true;
-				controls.lookVertical = false;
-				controls.lon = 270;
-				camera.position.z = 60;
-				camera.position.y = 17;
-				camera.position.x = 90;
-				firstPerson = true;
-				makeGui2();
-			}
-		});	
-		
-		// Change the ground texture	
-		folder1.add( guiConfig, 'changeGround', ['Grass','Dirt','Sand','Rock','ToadStone']).name("Ground Texture")
-			.onChange( function() {
-				var tex; // texture to be loaded
-				if (guiConfig.changeGround == 'Grass')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/grass.png" );
-				} else if (guiConfig.changeGround == 'Dirt')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/dirt.jpg" );
-				} else if (guiConfig.changeGround == 'Sand')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/sand.jpg" );
-				} else if (guiConfig.changeGround == 'Rock')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/rock.png" );
-				} else if (guiConfig.changeGround == 'ToadStone')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/ToadStone.png" );
-				}	
-				// Repeat texture and wrap it
-				setGroundTextureProperties(tex);
-				plane.material.map = tex;
-		});
-		
-			
-		
-		// Change the living room floor texture	
-		folder2.add( guiConfig, 'changeFloorLiving', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Living Room")
-			.onChange( function() {
-				var tex; // texture to be loaded
-				if (guiConfig.changeFloorLiving == 'Tile')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
-				} else if (guiConfig.changeFloorLiving == 'Brown wood')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
-				} else if (guiConfig.changeFloorLiving == 'Stone')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
-				} else if (guiConfig.changeFloorLiving == 'Dark brown wood')
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
-				} else
-				{
-					tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
-				}
-				
-				// Repeat texture and wrap it
-				setFloorTextureProperties(tex);
-				livingPlane.material.map = tex;
-		});
-		// Change the bedroom floor texture
-		folder2.add( guiConfig, 'changeFloorBed', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Bedroom")
-		.onChange( function() {
-			var tex; // texture to be loaded
-			if (guiConfig.changeFloorBed == 'Tile')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
-			}
-			if (guiConfig.changeFloorBed == 'Brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
-			}
-			if (guiConfig.changeFloorBed == 'Stone')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
-			}
-			if (guiConfig.changeFloorBed == 'Dark brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
-			}
-			if (guiConfig.changeFloorBed == 'Light brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
-			}
-			
-			// Repeat texture and wrap it
-			setFloorTextureProperties(tex);
-			bedPlane.material.map = tex;
-	});
-	
-		// Change the bathroom floor texture
-		folder2.add( guiConfig, 'changeFloorBath', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Bathroom")
-		.onChange( function() {
-			var tex; // texture to be loaded
-			if (guiConfig.changeFloorBath == 'Tile')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
-			}
-			if (guiConfig.changeFloorBath == 'Brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
-			}
-			if (guiConfig.changeFloorBath == 'Stone')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
-			}
-			if (guiConfig.changeFloorBath == 'Dark brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
-			}
-			if (guiConfig.changeFloorBath == 'Light brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
-			}
-			
-			// Repeat texture and wrap it
-			setFloorTextureProperties(tex);
-			bathroomPlane.material.map = tex;
-	});
-	
-		// Change the kitchen floor texture
-		folder2.add( guiConfig, 'changeFloorKitchen', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Kitchen")
-		.onChange( function() {
-			var tex; // texture to be loaded
-			if (guiConfig.changeFloorKitchen == 'Tile')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
-			}
-			if (guiConfig.changeFloorKitchen == 'Brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
-			}
-			if (guiConfig.changeFloorKitchen == 'Stone')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
-			}
-			if (guiConfig.changeFloorKitchen == 'Dark brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
-			}
-			if (guiConfig.changeFloorKitchen == 'Light brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
-			}
-			
-			// Repeat texture and wrap it
-			setFloorTextureProperties(tex);
-			kitchenPlane.material.map = tex;
-	});
-	
-		// Change the dining room floor texture
-		folder2.add( guiConfig, 'changeFloorDining', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Dining Room")
-		.onChange( function() {
-			var tex; // texture to be loaded
-			if (guiConfig.changeFloorDining == 'Tile')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
-			}
-			if (guiConfig.changeFloorDining == 'Brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
-			}
-			if (guiConfig.changeFloorDining == 'Stone')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
-			}
-			if (guiConfig.changeFloorDining == 'Dark brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
-			}
-			if (guiConfig.changeFloorDining == 'Light brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
-			}
-			
-			// Repeat texture and wrap it
-			setFloorTextureProperties(tex);
-			diningPlane.material.map = tex;
-	});
-	
-		// Change hall 1 floor texture
-		folder2.add( guiConfig, 'changeFloorHall1', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Hall 1")
-		.onChange( function() {
-			var tex; // texture to be loaded
-			if (guiConfig.changeFloorHall1 == 'Tile')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
-			}
-			if (guiConfig.changeFloorHall1 == 'Brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
-			}
-			if (guiConfig.changeFloorHall1 == 'Stone')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
-			}
-			if (guiConfig.changeFloorHall1 == 'Dark brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
-			}
-			if (guiConfig.changeFloorHall1 == 'Light brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
-			}
-			
-			// Repeat texture and wrap it
-			setFloorTextureProperties(tex);
-			hall1Plane.material.map = tex;
-	});
-	
-		// Change hall 2 floor texture
-		folder2.add( guiConfig, 'changeFloorHall2', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Hall 2")
-		.onChange( function() {
-			var tex; // texture to be loaded
-			if (guiConfig.changeFloorHall2 == 'Tile')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
-			}
-			if (guiConfig.changeFloorHall2 == 'Brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
-			}
-			if (guiConfig.changeFloorHall2 == 'Stone')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
-			}
-			if (guiConfig.changeFloorHall2 == 'Dark brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
-			}
-			if (guiConfig.changeFloorHall2 == 'Light brown wood')
-			{
-				tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
-			}
-			
-			// Repeat texture and wrap it
-			setFloorTextureProperties(tex);
-			hall2Plane.material.map = tex;
-	});
-	
+		// Repeat texture and wrap it
+		setFloorTextureProperties(tex);
+		bedPlane.material.map = tex;
+});
 
+	// Change the bathroom floor texture
+	folder2.add( guiConfig, 'changeFloorBath', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Bathroom")
+	.onChange( function() {
+		var tex; // texture to be loaded
+		if (guiConfig.changeFloorBath == 'Tile')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+		}
+		if (guiConfig.changeFloorBath == 'Brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+		}
+		if (guiConfig.changeFloorBath == 'Stone')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+		}
+		if (guiConfig.changeFloorBath == 'Dark brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+		}
+		if (guiConfig.changeFloorBath == 'Light brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+		}
+		
+		// Repeat texture and wrap it
+		setFloorTextureProperties(tex);
+		bathroomPlane.material.map = tex;
+});
+
+	// Change the kitchen floor texture
+	folder2.add( guiConfig, 'changeFloorKitchen', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Kitchen")
+	.onChange( function() {
+		var tex; // texture to be loaded
+		if (guiConfig.changeFloorKitchen == 'Tile')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+		}
+		if (guiConfig.changeFloorKitchen == 'Brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+		}
+		if (guiConfig.changeFloorKitchen == 'Stone')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+		}
+		if (guiConfig.changeFloorKitchen == 'Dark brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+		}
+		if (guiConfig.changeFloorKitchen == 'Light brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+		}
+		
+		// Repeat texture and wrap it
+		setFloorTextureProperties(tex);
+		kitchenPlane.material.map = tex;
+});
+
+	// Change the dining room floor texture
+	folder2.add( guiConfig, 'changeFloorDining', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Dining Room")
+	.onChange( function() {
+		var tex; // texture to be loaded
+		if (guiConfig.changeFloorDining == 'Tile')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+		}
+		if (guiConfig.changeFloorDining == 'Brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+		}
+		if (guiConfig.changeFloorDining == 'Stone')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+		}
+		if (guiConfig.changeFloorDining == 'Dark brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+		}
+		if (guiConfig.changeFloorDining == 'Light brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+		}
+		
+		// Repeat texture and wrap it
+		setFloorTextureProperties(tex);
+		diningPlane.material.map = tex;
+});
+
+	// Change hall 1 floor texture
+	folder2.add( guiConfig, 'changeFloorHall1', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Hall 1")
+	.onChange( function() {
+		var tex; // texture to be loaded
+		if (guiConfig.changeFloorHall1 == 'Tile')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+		}
+		if (guiConfig.changeFloorHall1 == 'Brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+		}
+		if (guiConfig.changeFloorHall1 == 'Stone')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+		}
+		if (guiConfig.changeFloorHall1 == 'Dark brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+		}
+		if (guiConfig.changeFloorHall1 == 'Light brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+		}
+		
+		// Repeat texture and wrap it
+		setFloorTextureProperties(tex);
+		hall1Plane.material.map = tex;
+});
+
+	// Change hall 2 floor texture
+	folder2.add( guiConfig, 'changeFloorHall2', ['Tile','Light brown wood','Stone','Dark brown wood','Brown wood']).name("Hall 2")
+	.onChange( function() {
+		var tex; // texture to be loaded
+		if (guiConfig.changeFloorHall2 == 'Tile')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor.jpg" );
+		}
+		if (guiConfig.changeFloorHall2 == 'Brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor1.jpg" );
+		}
+		if (guiConfig.changeFloorHall2 == 'Stone')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor2.jpg" );
+		}
+		if (guiConfig.changeFloorHall2 == 'Dark brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor3.jpg" );
+		}
+		if (guiConfig.changeFloorHall2 == 'Light brown wood')
+		{
+			tex = THREE.ImageUtils.loadTexture( "texture/floor4.jpg" );
+		}
+		
+		// Repeat texture and wrap it
+		setFloorTextureProperties(tex);
+		hall2Plane.material.map = tex;
+});
 
 	// Slide bar used for changing light intensity - in lighting folder
 	var intens = folder1.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
 	folder1.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
-		alert(
-		"---------------------------------------------\n" 
-		+ "Top-Down View Controls \n" 
-		+ "--------------------------------------------- \n" 
-		+ "Left Click + Move mouse = Rotate\n" 
-		+ "Right Click + Move mouse = Pan\n" 
-		+ "Scroll up = Zoom in\n" 
-		+ "Scroll down = Zoom out \n\n" 
-		+ "---------------------------------------------\n" 
-		+ "First-Person View Controls \n" 
-		+ "--------------------------------------------- \n"
-		+ "Move Mouse = Look around \n"
-		+ "W = Forward \n"
-		+ "A = Strife Left \n"
-		+ "S = Backward \n"
-		+ "D = Strife Right"
-		);
+	alert(
+	"---------------------------------------------\n" 
+	+ "Top-Down View Controls \n" 
+	+ "--------------------------------------------- \n" 
+	+ "Left Click + Move mouse = Rotate\n" 
+	+ "Right Click + Move mouse = Pan\n" 
+	+ "Scroll up = Zoom in\n" 
+	+ "Scroll down = Zoom out \n\n" 
+	+ "---------------------------------------------\n" 
+	+ "First-Person View Controls \n" 
+	+ "--------------------------------------------- \n"
+	+ "Move Mouse = Look around \n"
+	+ "W = Forward \n"
+	+ "A = Strife Left \n"
+	+ "S = Backward \n"
+	+ "D = Strife Right"
+	);
 	} );
 
-	}
+}
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////       First-person GUI             //////////////////
@@ -776,7 +789,7 @@ function init()
 	}
 
 
-
+// Helper function that sets the texture properties for floors
 function setFloorTextureProperties(texture)
 {
 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -786,6 +799,7 @@ function setFloorTextureProperties(texture)
 	texture.offset.set( 1, 1 );
 }
 
+// Helper function that sets the texture properties for the ground
 function setGroundTextureProperties(texture)
 {
 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -817,7 +831,6 @@ function onDocumentMouseDown( event )
 		// clicking on room floors only allowed in topDown view
 		if ( intersects.length > 0 && firstPerson == false)
 		{
-			console.log("Hit @ " + toString( intersects[0].point ) );
 			// Switch to firstPerson settings
 			controls = new THREE.FirstPersonControls(camera, renderer.domElement);
 			controls.movementSpeed = 20;
@@ -828,6 +841,7 @@ function onDocumentMouseDown( event )
 			firstPerson = true;
 			makeGui2();
 			
+			// default camera position upon clicking a room
 			if ( intersects[ 0 ].object.name == "Living Room") {
 				controls.lon = 270;
 				camera.position.y = 17;
@@ -864,11 +878,6 @@ function onDocumentMouseDown( event )
 
 }
 
-
-// location of click
-function toString(v) { return "[ " + v.x + ", " + v.y + ", " + v.z + " ]"; }
-
-
 function onDocumentMouseMove( event ) 
 {
 	// Lock first person controls when mouse is the upper right corner of the screen
@@ -878,13 +887,9 @@ function onDocumentMouseMove( event )
 	} else {
 		controls.activeLook = true;
 	}
-	
-	// the following line would stop any other event handler from firing
-	// (such as the mouse's TrackballControls)
-	//event.preventDefault();
 
 	// update sprite position
-	sprite1.position.set( event.clientX, event.clientY - 20, 0 );
+	sprite1.position.set( event.clientX, event.clientY-20, 0 );
 	
 	// update the mouse variable
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -892,11 +897,16 @@ function onDocumentMouseMove( event )
 	
 }
 
+// Method to detect collision 
+// Only allows for backwards movement if the camera collides with a 
+// collidable object
 function detectCollision() {
 	var vector = new THREE.Vector3( 1, camera.position.y, 1 );
 	var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize());
 	var intersects = ray.intersectObjects( collisionList );
+	// Stop movement if less than 5 units away from collidable object
 	if ( intersects.length > 0 && intersects[0].distance < 5) {
+		// Disable all movement except backwards
 		controls.moveForward = false;
 		controls.moveRight = false;
 		controls.moveLeft = false;
@@ -910,8 +920,8 @@ function detectCollision() {
 function animate()
 {
 	requestAnimationFrame(animate);
-	
 	render();
+	// The following is to make the mirrors reflective
 	bathMirCube.visible = false;
 	bathMirCubeCamera.updateCubeMap( renderer, scene );
 	bathMirCube.visible = true;
@@ -923,17 +933,14 @@ function animate()
 
 function render() {
 	detectCollision();
-		// create a Ray with origin at the mouse position
-	//   and direction into the scene (camera direction)
+
+	// Code for highlighting modified from https://stemkoski.github.io/Three.js/Mouse-Tooltip.html
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
 	vector.unproject(camera );
 	var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 
-	// create an array containing all objects in the scene with which the ray intersects
+	// make an array of objects that can be highlighted
 	var intersects = ray.intersectObjects( targetList );
-
-	// INTERSECTED = the object in the scene currently closest to the camera 
-	//		and intersected by the Ray projected from the mouse position 	
 	
 	// check to see if there is an intersection
 	// only allow for highlight if not in firstPerson view	
@@ -944,50 +951,25 @@ function render() {
 		{
 		    // restore previous intersection object (if it exists) to its original color
 			if ( INTERSECTED ) 
+			{
 				INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+			}
 			// store reference to closest object as current intersection object
 			INTERSECTED = intersects[ 0 ].object;
-			// store color of closest object (for later restoration)
+			// store color of plane
 			INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-			// set a new color for closest object
+			// make color of highlighted floor red
 			INTERSECTED.material.color.setHex( 0xff0000 );
-			
-			/*
-			// update text, if it has a "name" field.
-			if ( intersects[ 0 ].object.name )
-			{
-			    context1.clearRect(0,0,50,50);
-				var message = intersects[ 0 ].object.name;
-				var metrics = context1.measureText(message);
-				var width = metrics.width;
-				context1.fillStyle = "rgba(0,0,0,0.95)"; // black border
-				context1.fillRect( 0,0, width+8,20+8);
-				context1.fillStyle = "rgba(255,255,255,0.95)"; // white filler
-				context1.fillRect( 2,2, width+4,20+4 );
-				context1.fillStyle = "rgba(0,0,0,1)"; // text color
-				context1.fillText( message, 4,20 );
-				textureC.needsUpdate = true;
-			}
-			else
-			{
-				context1.clearRect(0,0,300,300);
-				textureC.needsUpdate = true;
-			}
-			*/
+
 		}
-		
-		
 	} 
-	else // there are no intersections
+	else
 	{
-		// restore previous intersection object (if it exists) to its original color
-		if ( INTERSECTED ) 
+		// set plane back to original color if it's not being hovered over
+		if ( INTERSECTED ) {
 			INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
-		// remove previous intersection object reference
-		//     by setting current intersection object to "nothing"
+		}
 		INTERSECTED = null;
-		context1.clearRect(0,0,300,300);
-		textureC.needsUpdate = true;
 	}
 	controls.update( clock.getDelta() );
 	renderer.render( scene, camera );
