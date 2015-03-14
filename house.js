@@ -103,16 +103,156 @@ function init()
 		scene.add(houseContainer);
 	});
 	
+	/////////////////////////////////////////////////////////////////////////////////
+	// CREATE COLLIDABLE WALLS    ///////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////
+	
+	//OUTER WALLS
+	//////////////////////////////////////////////////////////////
+	// MATERIAL FOR ALL COLLISION WALLS
+	material1 = new THREE.MeshPhongMaterial( {transparent: true, side: THREE.DoubleSide} );
+	
 	// Create collision wall right kitchen
-	material1 = new THREE.MeshPhongMaterial( {transparent: true} );
 	geometry1 = new THREE.PlaneBufferGeometry( 115,10 );
+	material1.opacity = 0;
 	wall1 = new THREE.Mesh( geometry1, material1 );
 	wall1.position.set(15, 17, 28);
-	wall1.name ='wall1';
-	material1.opacity = 0;
 	scene.add( wall1 );
 	// add wall to collidable objects list
 	collisionList.push(wall1);
+	
+	// Create collision wall behind couch
+	geometry2 = new THREE.PlaneBufferGeometry( 187,10 );
+	wall2 = new THREE.Mesh( geometry2, material1 );
+	wall2.position.set(106, 17, -40);
+	wall2.rotation.y = 1.57
+	scene.add( wall2 );
+	// add wall to collidable objects list
+	collisionList.push(wall2);	
+	
+	//Create collision wall for bedroom/dining room
+	geometry3 = new THREE.PlaneBufferGeometry( 153,10 );
+	wall3 = new THREE.Mesh( geometry3, material1 );
+	wall3.position.set(35, 17, -131);
+	scene.add( wall3 );
+	// add wall to collidable objects list
+	collisionList.push(wall3);	
+	
+	// Create collision wall for kitchen and dining room
+	geometry4 = new THREE.PlaneBufferGeometry( 160,10 );
+	wall4 = new THREE.Mesh( geometry4, material1 );
+	wall4.position.set(-40, 17, -50);
+	wall4.rotation.y = 1.57
+	scene.add( wall4 );
+	// add wall to collidable objects list
+	collisionList.push(wall4);	
+	
+	
+	// INNER WALLS
+	//////////////////////////////////////////////////////////////
+	
+	// Create collision walls between bedroom and kitchen
+	geometry5 = new THREE.PlaneBufferGeometry( 70,10 );
+	wall5 = new THREE.Mesh( geometry5, material1 );
+	wall5.position.set(20, 17, -100);
+	wall5.rotation.y = 1.57
+	wall6 = new THREE.Mesh( geometry5, material1 );
+	wall6.position.set(14, 17, -100);
+	wall6.rotation.y = 1.57
+	scene.add( wall5 );
+	scene.add( wall6 );
+	// add walls to collidable objects list
+	collisionList.push(wall6);
+	collisionList.push(wall5);
+	
+	// Create collision walls between kitchen and bathroom
+	geometry7 = new THREE.PlaneBufferGeometry( 43,10 );
+	wall7 = new THREE.Mesh( geometry7, material1 );
+	wall7.position.set(17, 17, -17);
+	wall7.rotation.y = 1.57
+	wall8 = new THREE.Mesh( geometry7, material1 );
+	wall8.position.set(14, 17, -17);
+	wall8.rotation.y = 1.57
+	scene.add( wall7 );
+	scene.add( wall8 );
+	// add walls to collidable objects list
+	collisionList.push(wall7)
+	collisionList.push(wall8);
+	
+	// Create collision walls between living room and bathroom
+	geometry7 = new THREE.PlaneBufferGeometry( 43,10 );
+	wall7 = new THREE.Mesh( geometry7, material1 );
+	wall7.position.set(49, 17, -17);
+	wall7.rotation.y = 1.57
+	wall8 = new THREE.Mesh( geometry7, material1 );
+	wall8.position.set(44, 17, -17);
+	wall8.rotation.y = 1.57
+	scene.add( wall7 );
+	scene.add( wall8 );
+	// add walls to collidable objects list
+	collisionList.push(wall7);
+	collisionList.push(wall8);
+	
+	// Create collision walls between hall1 and bathroom
+	geometry9 = new THREE.PlaneBufferGeometry( 15,10 );
+	wall9 = new THREE.Mesh( geometry9, material1 );
+	wall9.position.set(22, 17, -38);
+	wall10 = new THREE.Mesh( geometry9, material1 );
+	wall10.position.set(22, 17, -35);
+	scene.add( wall9 );
+	scene.add( wall10 );
+	// add walls to collidable objects list
+	collisionList.push(wall9);
+	collisionList.push(wall10);
+
+	
+	// Create collision walls between bedroom and living room
+	geometry11 = new THREE.PlaneBufferGeometry( 65,10 );
+	wall11 = new THREE.Mesh( geometry11, material1 );
+	wall11.position.set(47, 17, -64);
+	wall12 = new THREE.Mesh( geometry11, material1 );
+	wall12.position.set(47, 17, -68);
+	scene.add( wall11 );
+	scene.add( wall12 );
+	// add walls to collidable objects list
+	collisionList.push(wall11);
+	collisionList.push(wall12);
+	
+	// Create collision walls between hall2 and bathroom
+	geometry13 = new THREE.PlaneBufferGeometry( 33,10 );
+	wall13 = new THREE.Mesh( geometry13, material1 );
+	wall13.position.set(32, 17, 7);
+	wall14 = new THREE.Mesh( geometry13, material1 );
+	wall14.position.set(32, 17, 4);
+	scene.add( wall13 );
+	scene.add( wall14 );
+	// add walls to collidable objects list
+	collisionList.push(wall13);
+	collisionList.push(wall14);
+	
+	// Create collision walls between dining and kitchen
+	geometry15 = new THREE.PlaneBufferGeometry( 31,10 );
+	wall15 = new THREE.Mesh( geometry15, material1 );
+	wall15.position.set(-25, 17, -47);
+	wall16 = new THREE.Mesh( geometry15, material1 );
+	wall16.position.set(-25, 17, -50);
+	scene.add( wall15 );
+	scene.add( wall16 );
+	// add walls to collidable objects list
+	collisionList.push(wall15);
+	collisionList.push(wall16);
+	
+	// Create collision wall at enterence
+	geometry17 = new THREE.PlaneBufferGeometry( 25,10 );
+	wall17 = new THREE.Mesh( geometry17, material1 );
+	wall17.position.set(74, 17, 43);
+	wall17.rotation.y = 1.57
+	scene.add( wall17 );
+	// add walls to collidable objects list
+	collisionList.push(wall17);
+
+	
+	
 	
 	
 	// Initialize floor textures
@@ -222,7 +362,7 @@ function init()
 	
 	// Bathroom mirror
 	var bathMirGeom = new THREE.PlaneBufferGeometry(6.5, 8.9)
-	bathMirCubeCamera = new THREE.CubeCamera( .1, 200, 2048 );
+	bathMirCubeCamera = new THREE.CubeCamera( .1, 200, 1024 );
 	scene.add( bathMirCubeCamera );
 	// Map the mirrorcamera to the plane
 	var bathMirCubeMat = new THREE.MeshBasicMaterial( { envMap: bathMirCubeCamera.renderTarget } );
@@ -312,7 +452,7 @@ function init()
 	
 	// Bedroom mirror
 	var bedMirGeom = new THREE.PlaneBufferGeometry(12, 19)
-	bedMirCubeCamera = new THREE.CubeCamera( .1, 400, 2048 );
+	bedMirCubeCamera = new THREE.CubeCamera( .1, 400, 1024 );
 	scene.add( bedMirCubeCamera );
 	var bedMirCubeMat = new THREE.MeshBasicMaterial( { envMap: bedMirCubeCamera.renderTarget } );
 	bedMirCube = new THREE.Mesh( bedMirGeom, bedMirCubeMat );
@@ -437,7 +577,7 @@ function makeGui1() {
 	gui.open();
 	folder1.open();
 	// Drop down menu to pick the view of the camera
-	var view = folder1.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View")
+	var view = folder1.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camera View")
 			.onChange( function() {
 		if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
 			roofMaterial.opacity = 0;
@@ -719,74 +859,74 @@ function makeGui1() {
 
 }
 	
-	/////////////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////       First-person GUI             //////////////////
-	/////////////////////////////////////////////////////////////////////////////////////	
-	function makeGui2() {
-		gui.destroy();
-		roofMaterial.opacity = 1;
-		// temp gui for firstperson view
-		var	guiConfigData = function() {
-			this.showControls = function() {
-			};
-			this.light = 1;
-			this.cameraView = "First-person"; // defaults to "top-down" view
+/////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////       First-person GUI             //////////////////
+/////////////////////////////////////////////////////////////////////////////////////	
+function makeGui2() {
+	gui.destroy();
+	roofMaterial.opacity = 1;
+	// temp gui for firstperson view
+	var	guiConfigData = function() {
+		this.showControls = function() {
 		};
+		this.light = 1;
+		this.cameraView = "First-person"; // defaults to "top-down" view
+	};
 
-		// Create the GUI frame
-		var  guiConfig = new guiConfigData(  );
-		gui = new dat.GUI( );
-		gui.open();
-		
-		var view = gui.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camere View 2")
-				.onChange( function() {
-			if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
-				roofMaterial.opacity = 0;
-				controls = new THREE.OrbitControls(camera, renderer.domElement);
-				// topdown position
-				camera.position.y = 240;
-				camera.position.x = 20;
-				camera.position.z = -20;
-				firstPerson = false;
-				guiDestroyFlag = true;
-				makeGui1();
-			} else if ( guiConfig.cameraView == 'First-person') { 
-				// camera position for first person point of view
-				roofMaterial.opacity = 1;
-				controls = new THREE.FirstPersonControls(camera, renderer.domElement);
-				controls.movementSpeed = 20;
-				controls.lookSpeed = 0.05;
-				controls.noFly = true;
-				controls.lookVertical = false;
-				controls.lon = 270;
-				camera.position.y = 17;
-				camera.position.x = 90;
-				camera.position.z = 60;
-				firstPerson = true;
-			}
-		});
-		var intens = gui.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
-		gui.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
-		alert(
-		"---------------------------------------------\n" 
-		+ "Top-Down View Controls \n" 
-		+ "--------------------------------------------- \n" 
-		+ "Left Click + Move mouse = Rotate\n" 
-		+ "Right Click + Move mouse = Pan\n" 
-		+ "Scroll up = Zoom in\n" 
-		+ "Scroll down = Zoom out \n\n" 
-		+ "---------------------------------------------\n" 
-		+ "First-Person View Controls \n" 
-		+ "--------------------------------------------- \n"
-		+ "Move Mouse = Look around \n"
-		+ "W = Forward \n"
-		+ "A = Strife Left \n"
-		+ "S = Backward \n"
-		+ "D = Strife Right"
-		);
-	} );
-		
-	}
+	// Create the GUI frame
+	var  guiConfig = new guiConfigData(  );
+	gui = new dat.GUI( );
+	gui.open();
+	
+	var view = gui.add(guiConfig, 'cameraView', [ 'Top-down', 'First-person' ] ).name("Camera View")
+			.onChange( function() {
+		if( guiConfig.cameraView == 'Top-down') { // camera angle for top-down view
+			roofMaterial.opacity = 0;
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			// topdown position
+			camera.position.y = 240;
+			camera.position.x = 20;
+			camera.position.z = -20;
+			firstPerson = false;
+			guiDestroyFlag = true;
+			makeGui1();
+		} else if ( guiConfig.cameraView == 'First-person') { 
+			// camera position for first person point of view
+			roofMaterial.opacity = 1;
+			controls = new THREE.FirstPersonControls(camera, renderer.domElement);
+			controls.movementSpeed = 20;
+			controls.lookSpeed = 0.05;
+			controls.noFly = true;
+			controls.lookVertical = false;
+			controls.lon = 270;
+			camera.position.y = 17;
+			camera.position.x = 90;
+			camera.position.z = 60;
+			firstPerson = true;
+		}
+	});
+	var intens = gui.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
+	gui.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
+	alert(
+	"---------------------------------------------\n" 
+	+ "Top-Down View Controls \n" 
+	+ "--------------------------------------------- \n" 
+	+ "Left Click + Move mouse = Rotate\n" 
+	+ "Right Click + Move mouse = Pan\n" 
+	+ "Scroll up = Zoom in\n" 
+	+ "Scroll down = Zoom out \n\n" 
+	+ "---------------------------------------------\n" 
+	+ "First-Person View Controls \n" 
+	+ "--------------------------------------------- \n"
+	+ "Move Mouse = Look around \n"
+	+ "W = Forward \n"
+	+ "A = Strife Left \n"
+	+ "S = Backward \n"
+	+ "D = Strife Right"
+	);
+} );
+	
+}
 
 
 // Helper function that sets the texture properties for floors
