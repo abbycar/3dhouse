@@ -31,9 +31,28 @@ Description : This is a 3D house for you to explore! In Progress
 			}
 		</style>
 </head>
-<body>		
+<body>	
+
+	
 	<div id="container">
 	</div>
+		<script type="x-shader/x-fragment" id="fragmentshader">
+		varying vec2 vUv;
+		// Shader code modified from http://www.clicktorelease.com/blog/vertex-displacement-noise-3d-webgl-glsl-three-js
+		void main() {
+			gl_FragColor = vec4( vec3( vUv, 0.5 ), 1.0);
+		}
+	
+	</script>
+
+	<script type="x-shader/x-vertex" id="vertexshader">
+		varying vec2 vUv;
+		void main() {
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}
+	</script>
 	<script src="house.js"></script>
 </body>
 </html>
