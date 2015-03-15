@@ -279,8 +279,22 @@ function init()
 	/////////////////////////////////////////////////////////////////////////////////////
 	
 	// Ground plane
+
+	var myMaterial = new THREE.ShaderMaterial({
+		vertexShader: document.getElementById( 'vertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+	});
+	myMaterial.side = THREE.DoubleSide;
+
+	geometry18 = new THREE.PlaneBufferGeometry( 64,25 );
+	wallShade = new THREE.Mesh( geometry18, myMaterial );
+	wallShade.position.set(48, 13, -66.8);
+	scene.add(wallShade);
+	
+	
+	
 	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 420 );
-	//var planeMaterial = new THREE.MeshLambertMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
+	//var planeMaterial = new THREE.Mesh( {color: 0xffffff, side: THREE.DoubleSide} );
 	var planeMaterial = new THREE.MeshLambertMaterial( {map: textureGround, side: THREE.DoubleSide} );
 	plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	plane.position.set(50, 0, -30);
