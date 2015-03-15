@@ -151,13 +151,13 @@ function init()
 	// INNER WALLS
 	//////////////////////////////////////////////////////////////
 	
-	// Create collision walls between bedroom and kitchen
+	// Create collision walls between bedroom and dining room
 	geometry5 = new THREE.PlaneBufferGeometry( 70,10 );
 	wall5 = new THREE.Mesh( geometry5, material1 );
 	wall5.position.set(20, 17, -100);
 	wall5.rotation.y = 1.57
 	wall6 = new THREE.Mesh( geometry5, material1 );
-	wall6.position.set(14, 17, -100);
+	wall6.position.set(15, 17, -100);
 	wall6.rotation.y = 1.57
 	scene.add( wall5 );
 	scene.add( wall6 );
@@ -207,11 +207,11 @@ function init()
 
 	
 	// Create collision walls between bedroom and living room
-	geometry11 = new THREE.PlaneBufferGeometry( 65,10 );
+	geometry11 = new THREE.PlaneBufferGeometry( 62,10 );
 	wall11 = new THREE.Mesh( geometry11, material1 );
-	wall11.position.set(47, 17, -64);
+	wall11.position.set(48, 17, -64);
 	wall12 = new THREE.Mesh( geometry11, material1 );
-	wall12.position.set(47, 17, -68);
+	wall12.position.set(48, 17, -68);
 	scene.add( wall11 );
 	scene.add( wall12 );
 	// add walls to collidable objects list
@@ -278,23 +278,8 @@ function init()
 	///////////////////////////////       Roof and Ground         ///////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////
 	
-	// Ground plane
-
-	var myMaterial = new THREE.ShaderMaterial({
-		vertexShader: document.getElementById( 'vertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'fragmentshader' ).textContent
-	});
-	myMaterial.side = THREE.DoubleSide;
-
-	geometry18 = new THREE.PlaneBufferGeometry( 64,25 );
-	wallShade = new THREE.Mesh( geometry18, myMaterial );
-	wallShade.position.set(48, 13, -66.8);
-	scene.add(wallShade);
-	
-	
-	
+	// Ground plane	
 	var planeGeometry = new THREE.PlaneBufferGeometry( 300, 420 );
-	//var planeMaterial = new THREE.Mesh( {color: 0xffffff, side: THREE.DoubleSide} );
 	var planeMaterial = new THREE.MeshLambertMaterial( {map: textureGround, side: THREE.DoubleSide} );
 	plane = new THREE.Mesh( planeGeometry, planeMaterial );
 	plane.position.set(50, 0, -30);
@@ -463,6 +448,27 @@ function init()
 	scene.add( bedPlane );
 	// Is highlightable
 	targetList.push(bedPlane);
+	
+	// Load custom shader
+	var myMaterial = new THREE.ShaderMaterial({
+		vertexShader: document.getElementById( 'vertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+	});
+	myMaterial.side = THREE.DoubleSide;
+
+	// Add rainbow wall color plane (mirror side)
+	geometry18 = new THREE.PlaneBufferGeometry( 64,25 );
+	wallShade = new THREE.Mesh( geometry18, myMaterial );
+	wallShade.position.set(48, 13, -66.8);
+	scene.add(wallShade);
+	// Add rainbow wall color plane (closet side)
+	geometry19 = new THREE.PlaneBufferGeometry( 67,25 );
+	wallShade2 = new THREE.Mesh( geometry19, myMaterial );
+	wallShade2.rotation.y = 1.57;
+	wallShade2.position.set(106.28, 13, -99.5);
+	scene.add(wallShade2);
+	
+	
 	
 	// Bedroom mirror
 	var bedMirGeom = new THREE.PlaneBufferGeometry(12, 19)
