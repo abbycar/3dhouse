@@ -28,6 +28,8 @@ var textureBed, textureBath, textureKitchen, textureLiving, textureDining, textu
 // for mirror material
 var bathMirCube, bathMirCubeCamera; 
 var bedMirCube, bedMirCubeCamera; 
+// lights
+var bedroomLamp, diningroomLight, livingroomLight, bathroomLight, kitchenLight;
 init();
 animate();
 
@@ -72,7 +74,7 @@ function init()
 	scene.add( skyBox );
 	
 	
-	// add lights to the scene
+	// add lights to the scene -- general lights
 	var ambientLight = new THREE.AmbientLight( 0x554433);
 	light = new THREE.DirectionalLight( 0xffffff, 1.0 );
 	light.position.set( 200, 400, 500 );
@@ -88,11 +90,39 @@ function init()
 	scene.add(light2);
 	scene.add(light3);
 
+	//----------------------------lights for each room----------------------------------------
+	// bedroom lamp light
+	bedroomLamp = new THREE.PointLight(0xffff00, .1, 70);
+	bedroomLamp.position.set(32, 35, -120);
+	scene.add(bedroomLamp);
+
+	// dining room light
+	diningroomLight = new THREE.PointLight(0xffffff, .1, 50);
+	diningroomLight.position.set(-27, 17, -70);
+	scene.add(diningroomLight);
+
+	// kitchen light
+	kitchenLight = new THREE.PointLight(0xcc22ff, .1, 90);
+	kitchenLight.position.set(-20, 17, -10);
+	scene.add(kitchenLight);
+
+	// bathroom light
+	bathroomLight = new THREE.PointLight(0xffa500, .1, 25);
+	bathroomLight.position.set(30, 18, -5);
+	scene.add(bathroomLight);
+
+	// living room light
+	livingroomLight = new THREE.PointLight(0xaa00ff, .1, 28);
+	livingroomLight.position.set(95, 19, -42);
+	scene.add(livingroomLight);
+
+
+	//---------------------------load house model from MAYA----------------------------------
 	houseContainer = new THREE.Group();
 
     // loader to load in house model
     var loader = new THREE.OBJMTLLoader();
-	loader.load('model/house1.obj','model/house1.mtl',function(object){
+	loader.load('model/house2.obj','model/house2.mtl',function(object){
 	    object.position.x = -10;
 		object.castShadow = true;
 		object.traverse(function(node){
@@ -587,6 +617,7 @@ function makeGui1() {
 		this.changeFloorKitchen = "Brown wood";	
 		this.changeFloorHall1 = "Stone";	
 		this.changeFloorHall2 = "Brown wood";	
+		this.nightLight = false;
 	};
 	
 	// Create the GUI frame
@@ -857,6 +888,16 @@ function makeGui1() {
 
 	// Slide bar used for changing light intensity - in lighting folder
 	var intens = folder1.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
+	
+	folder1.add(guiConfig,'nightLight',false).onChange(function(value){
+		bedroomLamp.intensity = value;
+		diningroomLight.intensity = value;
+		kitchenLight.intensity = value;
+		bathroomLight.intensity = value;
+		livingroomLight.intensity = value;
+	});
+
+
 	folder1.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
 	alert(
 	"---------------------------------------------\n" 
@@ -889,7 +930,8 @@ function makeGui2() {
 	var	guiConfigData = function() {
 		this.showControls = function() {
 		};
-		this.light = 1;
+		this.light = 0.7;
+		this.nightLight = false;
 		this.cameraView = "First-person"; // defaults to "top-down" view
 	};
 
@@ -926,6 +968,15 @@ function makeGui2() {
 		}
 	});
 	var intens = gui.add( light, 'intensity' ).min(0).max(1).step(.1).listen();
+
+	gui.add ( guiConfig, 'nightLight', false ).onChange(function(value){
+		bedroomLamp.intensity = value;
+		diningroomLight.intensity = value;
+		kitchenLight.intensity = value;
+		bathroomLight.intensity = value;
+		livingroomLight.intensity = value;
+	});
+
 	gui.add( guiConfig, 'showControls').name("Show Controls").onChange( function() {
 	alert(
 	"---------------------------------------------\n" 
