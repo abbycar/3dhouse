@@ -102,8 +102,8 @@ function init()
 	scene.add(diningroomLight);
 
 	// kitchen light
-	kitchenLight = new THREE.PointLight(0xcc22ff, .1, 90);
-	kitchenLight.position.set(-20, 17, -10);
+	kitchenLight = new THREE.PointLight(0xffff22, .1, 80);
+	kitchenLight.position.set(-30, 17, -10);
 	scene.add(kitchenLight);
 
 	// bathroom light
