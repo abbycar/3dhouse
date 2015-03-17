@@ -1,8 +1,9 @@
 //============================================================================
 // Name        : house.js
 // Author      : Abby Carey & Tina Pi
-// Assignment  : 3D House Explorer - Code Drop 2
-// Description : This is a 3D house for you to explore! In Progress
+// Assignment  : 3D House Explorer
+// Description : This is a 3D house for you to explore from both a floorplan
+//               view as well as a first-person point of view
 //============================================================================
 
 
@@ -391,7 +392,7 @@ function init()
 	
 	// Bathroom mirror
 	var bathMirGeom = new THREE.PlaneBufferGeometry(6.5, 8.9)
-	bathMirCubeCamera = new THREE.CubeCamera( .1, 200, 1024 );
+	bathMirCubeCamera = new THREE.CubeCamera( .1, 200, 512 );
 	scene.add( bathMirCubeCamera );
 	// Map the mirrorcamera to the plane
 	var bathMirCubeMat = new THREE.MeshBasicMaterial( { envMap: bathMirCubeCamera.renderTarget } );
@@ -502,7 +503,7 @@ function init()
 	
 	// Bedroom mirror
 	var bedMirGeom = new THREE.PlaneBufferGeometry(12, 19)
-	bedMirCubeCamera = new THREE.CubeCamera( .1, 400, 1024 );
+	bedMirCubeCamera = new THREE.CubeCamera( .1, 400, 512 );
 	scene.add( bedMirCubeCamera );
 	var bedMirCubeMat = new THREE.MeshBasicMaterial( { envMap: bedMirCubeCamera.renderTarget } );
 	bedMirCube = new THREE.Mesh( bedMirGeom, bedMirCubeMat );
